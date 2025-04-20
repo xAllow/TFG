@@ -1,0 +1,51 @@
+CONEXION/DESCONEXION
+    nsesiones
+ACEPTAR_ACCION
+    userid
+
+AÑADIR_PIEZA
+    pieza
+    piezaid
+    catalogo
+    diseñoid
+
+BORRAR_ITEM
+    diseñoid
+
+CAMBIOS
+    userid
+
+CARGAR_DISENO
+    diseñoid
+
+CREAR_DISENO
+    diseñoid
+
+DURACION
+    minutos
+
+ERROR_SISTEMA
+    diseñoid
+
+GEN_PRESUPUESTO // Añadir gen pedido
+    diseñoid
+
+INTENTO_ACCION
+    email
+
+LOGIN
+    userid
+
+LOGOUT
+    userid
+
+NUEVO_ITEM
+    logo
+
+REQUEST
+    userid
+
+VER_PRESUPUESTO // Añadir ver pedido
+    diseñoid
+
+userid, pieza, piezaid, catalogo, diseñoid, minutos, logo

@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.31">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>7&nbsp; Reglas de Asociación – Análisis de Logs</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../notebooks/mineria_de_procesos.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/reglas_asociacion.html"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Reglas de Asociación</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Análisis de Logs</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Inicio</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/preprocesamiento.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Prepocesamiento</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/analisis_exploratorio.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Análisis exploratorio</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/serie_temporal.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Serie temporal</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/clustering.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Clustering con PCA y K-Means</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/mineria_de_procesos.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Mineria de procesos</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/reglas_asociacion.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Reglas de Asociación</span></span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#filtrado-y-exploracion-de-los-datos" id="toc-filtrado-y-exploracion-de-los-datos" class="nav-link active" data-scroll-target="#filtrado-y-exploracion-de-los-datos"><span class="header-section-number">7.1</span> Filtrado y exploracion de los datos</a></li>
+  <li><a href="#observación-del-tamaño-de-las-transacciones" id="toc-observación-del-tamaño-de-las-transacciones" class="nav-link" data-scroll-target="#observación-del-tamaño-de-las-transacciones"><span class="header-section-number">7.2</span> Observación del tamaño de las transacciones</a></li>
+  <li><a href="#transformacion-del-dataframe-en-transacciones" id="toc-transformacion-del-dataframe-en-transacciones" class="nav-link" data-scroll-target="#transformacion-del-dataframe-en-transacciones"><span class="header-section-number">7.3</span> Transformacion del dataframe en transacciones</a></li>
+  <li><a href="#aplicación-del-algoritmo-apriori" id="toc-aplicación-del-algoritmo-apriori" class="nav-link" data-scroll-target="#aplicación-del-algoritmo-apriori"><span class="header-section-number">7.4</span> Aplicación del algoritmo apriori</a>
+  <ul class="collapse">
+  <li><a href="#generación-de-las-reglas-de-asociación" id="toc-generación-de-las-reglas-de-asociación" class="nav-link" data-scroll-target="#generación-de-las-reglas-de-asociación"><span class="header-section-number">7.4.1</span> Generación de las Reglas de Asociación</a></li>
+  <li><a href="#filtrado-de-reglas" id="toc-filtrado-de-reglas" class="nav-link" data-scroll-target="#filtrado-de-reglas"><span class="header-section-number">7.4.2</span> Filtrado de reglas</a></li>
+  </ul></li>
+  <li><a href="#recomendador-de-piezas" id="toc-recomendador-de-piezas" class="nav-link" data-scroll-target="#recomendador-de-piezas"><span class="header-section-number">7.5</span> Recomendador de piezas</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Reglas de Asociación</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Las reglas de asociación son una técnica de data mining que se utiliza para descubrir patrones entre variables en conjuntos de datos muy grandes. En este caso, se va a aplicar para descubrir cuáles son las piezas que se añaden a un diseño juntas. Estas reglas se expresan como {A} → {B}, por ejemplo: “Si un usuario añade una pieza A, entonces también añade la pieza B”. El objetivo es extraer patrones para poder hacer recomendaciones personalizadas.</p>
+<section id="filtrado-y-exploracion-de-los-datos" class="level2" data-number="7.1">
+<h2 data-number="7.1" class="anchored" data-anchor-id="filtrado-y-exploracion-de-los-datos"><span class="header-section-number">7.1</span> Filtrado y exploracion de los datos</h2>
+<p>Antes de generar las reglas de asociación, tenemos que transformar los datos a un formato correcto. Los datos tienen que estar en formato transaccional, donde cada registro, los diseños, sea una lista de ítems, en nuestro caso de piezas.</p>
+<p>Para aplicar el algoritmo, es suficiente extraer las columnas pieza y diseñoid del conjunto original, y filtrar por los diseños válidos y el catálogo estándar</p>
+<div id="0249beff-c3f4-41cb-887d-7c7a072938c6" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>añadir_fabricante <span class="op">=</span> df[(df[<span class="st">'Evento'</span>] <span class="op">==</span> <span class="st">'AÑADIR_PIEZA'</span>) <span class="op">&amp;</span> (df[<span class="st">'catalogo'</span>] <span class="op">==</span> <span class="st">'Estandar'</span>) <span class="op">&amp;</span> (df[<span class="st">'diseñoid'</span>] <span class="op">!=</span> <span class="st">'-1'</span>) <span class="op">&amp;</span> (df[<span class="st">'diseñoid'</span>] <span class="op">!=</span> <span class="st">'0'</span>)].copy()</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>añadir_fabricante <span class="op">=</span> añadir_fabricante[[<span class="st">'pieza'</span>, <span class="st">'diseñoid'</span>]]</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Número total de diseños: </span><span class="sc">{</span>a<span class="sc">ñ</span>adir_fabricante[<span class="st">'diseñoid'</span>]<span class="sc">.</span>nunique()<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Número total de ítems diferentes (piezas): </span><span class="sc">{</span>a<span class="sc">ñ</span>adir_fabricante[<span class="st">'pieza'</span>]<span class="sc">.</span>nunique()<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Número total de ítems (piezas): </span><span class="sc">{</span>a<span class="sc">ñ</span>adir_fabricante[<span class="st">'pieza'</span>]<span class="sc">.</span>count()<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Número total de diseños: 20898
+Número total de ítems diferentes (piezas): 320
+Número total de ítems (piezas): 154563</code></pre>
+</div>
+</div>
+<div id="fc009321" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>añadir_fabricante.tail(<span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="4">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">pieza</th>
+<th data-quarto-table-cell-role="th">diseñoid</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2008476</td>
+<td>ED-PLA-12</td>
+<td>82459</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2008489</td>
+<td>ED-COR-03</td>
+<td>82459</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2008502</td>
+<td>ED-ALF-04</td>
+<td>82459</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2008515</td>
+<td>ED-LIB-11</td>
+<td>82459</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2008526</td>
+<td>SILLON_02</td>
+<td>82436</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2008532</td>
+<td>ED-PLA-02</td>
+<td>82436</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2008545</td>
+<td>EE-VBA-03</td>
+<td>82327</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2008556</td>
+<td>EE-PCR-01</td>
+<td>82327</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2008560</td>
+<td>EE-PCI-06</td>
+<td>82300</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2008564</td>
+<td>EE-VBA-03</td>
+<td>82300</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="observación-del-tamaño-de-las-transacciones" class="level2" data-number="7.2">
+<h2 data-number="7.2" class="anchored" data-anchor-id="observación-del-tamaño-de-las-transacciones"><span class="header-section-number">7.2</span> Observación del tamaño de las transacciones</h2>
+<div id="89751cdf-a38f-42af-8d3d-304637d230f4" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(añadir_fabricante.groupby(<span class="st">'diseñoid'</span>)[<span class="st">'pieza'</span>].size().describe(percentiles<span class="op">=</span>[<span class="fl">.25</span>, <span class="fl">.5</span>, <span class="fl">.75</span>, <span class="fl">.9</span>]))</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>))</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>añadir_fabricante.groupby(<span class="st">'diseñoid'</span>)[<span class="st">'pieza'</span>].size().plot.hist(ax<span class="op">=</span>ax, bins<span class="op">=</span><span class="dv">100</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>, <span class="dv">50</span>) </span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">'Número de ítems'</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>count    20898.000000
+mean         7.396067
+std          9.656771
+min          1.000000
+25%          2.000000
+50%          4.000000
+75%          9.000000
+90%         17.000000
+max        285.000000
+Name: pieza, dtype: float64</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="reglas_asociacion_files/figure-html/cell-5-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="transformacion-del-dataframe-en-transacciones" class="level2" data-number="7.3">
+<h2 data-number="7.3" class="anchored" data-anchor-id="transformacion-del-dataframe-en-transacciones"><span class="header-section-number">7.3</span> Transformacion del dataframe en transacciones</h2>
+<div id="0fc17e90-0919-475b-8839-ff93dc259873" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>transacciones <span class="op">=</span> añadir_fabricante.groupby(<span class="st">'diseñoid'</span>)[<span class="st">'pieza'</span>].<span class="bu">apply</span>(<span class="bu">list</span>).to_list()</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>te <span class="op">=</span> TransactionEncoder()</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>te_ary <span class="op">=</span> te.fit(transacciones).transform(transacciones)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>df_transacciones <span class="op">=</span> pd.DataFrame(te_ary, columns<span class="op">=</span>te.columns_)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>df_transacciones.head(<span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="6">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">BALÓN</th>
+<th data-quarto-table-cell-role="th">BN-BDS-01</th>
+<th data-quarto-table-cell-role="th">BN-BDS-02</th>
+<th data-quarto-table-cell-role="th">BN-BDS-03</th>
+<th data-quarto-table-cell-role="th">BN-BDS-04</th>
+<th data-quarto-table-cell-role="th">BN-BNR-01</th>
+<th data-quarto-table-cell-role="th">BN-BNR-02</th>
+<th data-quarto-table-cell-role="th">BN-BNR-03</th>
+<th data-quarto-table-cell-role="th">BN-BNR-04</th>
+<th data-quarto-table-cell-role="th">BN-BNR-05</th>
+<th data-quarto-table-cell-role="th">...</th>
+<th data-quarto-table-cell-role="th">SOF-011</th>
+<th data-quarto-table-cell-role="th">SOF-013</th>
+<th data-quarto-table-cell-role="th">SOF-014</th>
+<th data-quarto-table-cell-role="th">SOF-015</th>
+<th data-quarto-table-cell-role="th">SOF-016</th>
+<th data-quarto-table-cell-role="th">SOF-017</th>
+<th data-quarto-table-cell-role="th">SOF-021</th>
+<th data-quarto-table-cell-role="th">SOF-022</th>
+<th data-quarto-table-cell-role="th">SOF-023</th>
+<th data-quarto-table-cell-role="th">SOF-024</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>...</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>...</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>...</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>...</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>...</td>
+<td>True</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+</tr>
+</tbody>
+</table>
+
+<p>5 rows × 320 columns</p>
+</div>
+</div>
+</div>
+</section>
+<section id="aplicación-del-algoritmo-apriori" class="level2" data-number="7.4">
+<h2 data-number="7.4" class="anchored" data-anchor-id="aplicación-del-algoritmo-apriori"><span class="header-section-number">7.4</span> Aplicación del algoritmo apriori</h2>
+<p>El algoritmo Apriori sirve para identificar los patrones más frecuentes para, posteriormente, generar las reglas de asociación. Es decir, el algoritmo tiene dos fases: primero identificamos el conjunto de ítems frecuentes con la función apriori de mlxtend con un soporte mínimo, min_support, de 0.001, y a partir de este conjunto de ítems generamos las reglas de asociación con association_rules que satisfagan un umbral mínimo de confianza, en este caso con un min_threshold de 0.5.</p>
+<ul>
+<li><p><strong>Soporte:</strong> El soporte mide la proporción de veces que aparece un conjuntos de ítems en una transacción sobre el total de transacciones: <span class="math display">\[
+  support(A) = \frac{Numero\ de\ transacciones\ que\ contienen \ A}{Numero\ total\ transacciones}
+  \]</span></p></li>
+<li><p><strong>Confianza:</strong> La confianza mide la probabilidad de que ocurra B dado que ha ocurrido A: <span class="math display">\[
+  confidence(A \rightarrow B) = \frac{support(A \cup B)}{support(A)}
+  \]</span></p></li>
+<li><p><strong>Lift:</strong> El <em>lift</em> mide si la presencia de A aumenta la probabilidad de que ocurra B, en comparación de que ocurra B solo: <span class="math display">\[
+      lift(A \rightarrow B) = \frac{support(A \cup B)}{support(A)\cdot support(B)}
+  \]</span></p></li>
+</ul>
+<div id="8bc7aa2a" class="cell" data-execution_count="25">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>itemsets <span class="op">=</span> apriori(df_transacciones, min_support<span class="op">=</span><span class="fl">0.001</span>, use_colnames<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Ordeno los itemsets por frecuencia de manera descendente</p>
+<div id="7cc65444-87d2-44cc-b53e-f939f15b5df1" class="cell" data-execution_count="26">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>itemsets[<span class="st">'n_items'</span>] <span class="op">=</span> itemsets[<span class="st">'itemsets'</span>].<span class="bu">apply</span>(<span class="bu">len</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>itemsets.sort_values(by<span class="op">=</span><span class="st">'support'</span>, ascending<span class="op">=</span><span class="va">True</span>).head(<span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="26">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">support</th>
+<th data-quarto-table-cell-role="th">itemsets</th>
+<th data-quarto-table-cell-role="th">n_items</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">17637</td>
+<td>0.001005</td>
+<td>(ED-BAN-01, CU_VA_02, ED-ALF-02, ED-TVT-01)</td>
+<td>4</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">11239</td>
+<td>0.001005</td>
+<td>(ED-JAR-32, ED-COR-03, ED-JAR-22)</td>
+<td>3</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">3040</td>
+<td>0.001005</td>
+<td>(ED-PPC-02, ED-EST-03)</td>
+<td>2</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">17798</td>
+<td>0.001005</td>
+<td>(ED-PLA-02, EE-PILAR-01, ED-ALF-02, ED-BAN-01)</td>
+<td>4</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">17795</td>
+<td>0.001005</td>
+<td>(ED-BAN-01, ED-LPR-02, ED-ALF-02, EE-PILAR-01)</td>
+<td>4</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">11241</td>
+<td>0.001005</td>
+<td>(ED-JAR-22, ED-COR-03, ED-PLA-01)</td>
+<td>3</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">17771</td>
+<td>0.001005</td>
+<td>(ED-JAR-32, ED-TVT-02, ED-ALF-02, ED-BAN-01)</td>
+<td>4</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">7966</td>
+<td>0.001005</td>
+<td>(EE-RAD-01, ED-ALF-01, EE-PILAR-01)</td>
+<td>3</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">17756</td>
+<td>0.001005</td>
+<td>(ED-JAR-32, ED-JAR-02, ED-ALF-02, ED-BAN-01)</td>
+<td>4</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">7985</td>
+<td>0.001005</td>
+<td>(ED-LPR-13, ED-ALF-03, ED-ALF-02)</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<section id="generación-de-las-reglas-de-asociación" class="level3" data-number="7.4.1">
+<h3 data-number="7.4.1" class="anchored" data-anchor-id="generación-de-las-reglas-de-asociación"><span class="header-section-number">7.4.1</span> Generación de las Reglas de Asociación</h3>
+<div id="a132d248" class="cell" data-execution_count="27">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>reglas <span class="op">=</span> association_rules(itemsets, metric<span class="op">=</span><span class="st">"confidence"</span>, min_threshold<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>columnas <span class="op">=</span> [<span class="st">'antecedents'</span>, <span class="st">'consequents'</span>, <span class="st">'support'</span>, <span class="st">'confidence'</span>, <span class="st">'lift'</span>]</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>reglas <span class="op">=</span> reglas[columnas]</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>reglas.tail(<span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="27">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">antecedents</th>
+<th data-quarto-table-cell-role="th">consequents</th>
+<th data-quarto-table-cell-role="th">support</th>
+<th data-quarto-table-cell-role="th">confidence</th>
+<th data-quarto-table-cell-role="th">lift</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">7086</td>
+<td>(SGE-001, EE-VBA-03, ED-PPC-01, EE-PILAR-01, E...</td>
+<td>(ED-EST-01)</td>
+<td>0.001244</td>
+<td>0.787879</td>
+<td>6.095924</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">7087</td>
+<td>(SGE-001, ED-EST-01, ED-PPC-01, EE-PILAR-01, E...</td>
+<td>(EE-VBA-03)</td>
+<td>0.001244</td>
+<td>0.530612</td>
+<td>6.289696</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">7088</td>
+<td>(EE-VBA-03, ED-EST-01, ED-PPC-01, EE-PILAR-01,...</td>
+<td>(SGE-001)</td>
+<td>0.001244</td>
+<td>0.509804</td>
+<td>3.755334</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">7089</td>
+<td>(SGE-004, EE-VBA-03, ED-EST-01, ED-PPC-01, EE-...</td>
+<td>(EE-RAD-01)</td>
+<td>0.001148</td>
+<td>0.750000</td>
+<td>4.821132</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">7090</td>
+<td>(SGE-004, EE-VBA-03, ED-EST-01, ED-PPC-01, EE-...</td>
+<td>(EE-PILAR-01)</td>
+<td>0.001148</td>
+<td>0.533333</td>
+<td>2.390734</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">7091</td>
+<td>(SGE-004, EE-VBA-03, ED-EST-01, EE-PILAR-01, E...</td>
+<td>(ED-PPC-01)</td>
+<td>0.001148</td>
+<td>0.727273</td>
+<td>7.915909</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">7092</td>
+<td>(SGE-004, EE-VBA-03, ED-PPC-01, EE-PILAR-01, E...</td>
+<td>(ED-EST-01)</td>
+<td>0.001148</td>
+<td>0.888889</td>
+<td>6.877453</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">7093</td>
+<td>(SGE-004, EE-VBA-03, ED-EST-01, EE-PILAR-01)</td>
+<td>(EE-RAD-01, ED-PPC-01)</td>
+<td>0.001148</td>
+<td>0.521739</td>
+<td>21.379028</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">7094</td>
+<td>(SGE-004, EE-VBA-03, ED-PPC-01, EE-PILAR-01)</td>
+<td>(EE-RAD-01, ED-EST-01)</td>
+<td>0.001148</td>
+<td>0.615385</td>
+<td>15.995408</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">7095</td>
+<td>(SGE-004, EE-VBA-03, EE-RAD-01, EE-PILAR-01)</td>
+<td>(ED-EST-01, ED-PPC-01)</td>
+<td>0.001148</td>
+<td>0.500000</td>
+<td>15.879939</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="filtrado-de-reglas" class="level3" data-number="7.4.2">
+<h3 data-number="7.4.2" class="anchored" data-anchor-id="filtrado-de-reglas"><span class="header-section-number">7.4.2</span> Filtrado de reglas</h3>
+<div id="56a27067" class="cell" data-execution_count="20">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>reglas_conf <span class="op">=</span> reglas[reglas[<span class="st">'confidence'</span>] <span class="op">&gt;</span> <span class="fl">0.9</span>]</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>reglas_conf.head(<span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="20">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">antecedents</th>
+<th data-quarto-table-cell-role="th">consequents</th>
+<th data-quarto-table-cell-role="th">support</th>
+<th data-quarto-table-cell-role="th">confidence</th>
+<th data-quarto-table-cell-role="th">lift</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">369</td>
+<td>(SGE-004, ED-PPC-06)</td>
+<td>(ED-PPC-01)</td>
+<td>0.002010</td>
+<td>0.954545</td>
+<td>10.389631</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">556</td>
+<td>(SGE-004, EE-VBA-03, ED-ALF-02)</td>
+<td>(ED-EST-01)</td>
+<td>0.002058</td>
+<td>0.914894</td>
+<td>7.078655</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">778</td>
+<td>(SGE-004, ED-LPR-13, ED-LIB-14)</td>
+<td>(ED-PPC-01)</td>
+<td>0.002775</td>
+<td>0.920635</td>
+<td>10.020536</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">783</td>
+<td>(SGE-004, EE-RAD-01, ED-LIB-14)</td>
+<td>(ED-PPC-01)</td>
+<td>0.002201</td>
+<td>0.920000</td>
+<td>10.013625</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">869</td>
+<td>(SGE-004, ED-LPR-13, EE-RAD-01, ED-EST-01)</td>
+<td>(ED-PPC-01)</td>
+<td>0.002536</td>
+<td>0.913793</td>
+<td>9.946067</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="8a0b7dc7" class="cell" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>reglas_antecentes <span class="op">=</span> reglas[reglas[<span class="st">'antecedents'</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> x: <span class="bu">len</span>(x) <span class="op">&gt;</span> <span class="dv">1</span>)]</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>reglas_antecentes.head(<span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="21">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">antecedents</th>
+<th data-quarto-table-cell-role="th">consequents</th>
+<th data-quarto-table-cell-role="th">support</th>
+<th data-quarto-table-cell-role="th">confidence</th>
+<th data-quarto-table-cell-role="th">lift</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">14</td>
+<td>(CAM-02, ED-LIB-11)</td>
+<td>(ED-LPR-02)</td>
+<td>0.002393</td>
+<td>0.724638</td>
+<td>9.707358</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">15</td>
+<td>(ED-PPC-01, CU_CI_01)</td>
+<td>(SGE-001)</td>
+<td>0.002536</td>
+<td>0.569892</td>
+<td>4.197960</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">16</td>
+<td>(SGE-001, CU_CI_01)</td>
+<td>(ED-PPC-01)</td>
+<td>0.002536</td>
+<td>0.524752</td>
+<td>5.711603</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">17</td>
+<td>(CU_CI_04, SOF-022)</td>
+<td>(ED-TVT-01)</td>
+<td>0.002105</td>
+<td>0.550000</td>
+<td>5.729761</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">18</td>
+<td>(ED-BAN-01, CU_CI_05)</td>
+<td>(ED-LPR-01)</td>
+<td>0.002105</td>
+<td>0.602740</td>
+<td>12.276857</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">19</td>
+<td>(CU_IN_02, ED-PPC-01)</td>
+<td>(SGE-001)</td>
+<td>0.003685</td>
+<td>0.534722</td>
+<td>3.938888</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">20</td>
+<td>(CU_IN_02, SGE-001)</td>
+<td>(ED-PPC-01)</td>
+<td>0.003685</td>
+<td>0.516779</td>
+<td>5.624811</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">21</td>
+<td>(CU_IN_02, EE-PILAR-01)</td>
+<td>(SGE-001)</td>
+<td>0.002536</td>
+<td>0.504762</td>
+<td>3.718193</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">22</td>
+<td>(CU_IN_02, EE-VCR-01)</td>
+<td>(SGE-001)</td>
+<td>0.002967</td>
+<td>0.521008</td>
+<td>3.837869</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">23</td>
+<td>(ED-PPC-01, CU_IN_03)</td>
+<td>(SGE-001)</td>
+<td>0.002823</td>
+<td>0.508621</td>
+<td>3.746618</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="a0bfbcd7" class="cell" data-execution_count="35">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">len</span>(reglas))</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>reglas.sort_values(by <span class="op">=</span> <span class="st">'support'</span>, ascending <span class="op">=</span> <span class="va">True</span>).head(<span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>7096</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="35">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">antecedents</th>
+<th data-quarto-table-cell-role="th">consequents</th>
+<th data-quarto-table-cell-role="th">support</th>
+<th data-quarto-table-cell-role="th">confidence</th>
+<th data-quarto-table-cell-role="th">lift</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2757</td>
+<td>(ED-JAR-12, ED-LIB-11, ED-TVT-01)</td>
+<td>(ED-ALF-02)</td>
+<td>0.001005</td>
+<td>0.525000</td>
+<td>4.226290</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3998</td>
+<td>(EE-VBA-03, EE-RAD-01, ED-BAN-02)</td>
+<td>(ED-JAR-02)</td>
+<td>0.001005</td>
+<td>0.512195</td>
+<td>13.430180</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">5903</td>
+<td>(ED-LPR-01, ED-BAN-02, ED-ALF-02, EE-PILAR-01)</td>
+<td>(ED-TVT-01)</td>
+<td>0.001005</td>
+<td>0.777778</td>
+<td>8.102692</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3999</td>
+<td>(EE-VBA-03, ED-JAR-02, ED-BAN-02)</td>
+<td>(EE-RAD-01)</td>
+<td>0.001005</td>
+<td>0.567568</td>
+<td>3.648424</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">5902</td>
+<td>(ED-BAN-02, EE-PILAR-01, ED-ALF-02, ED-TVT-01)</td>
+<td>(ED-LPR-01)</td>
+<td>0.001005</td>
+<td>0.567568</td>
+<td>11.560455</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5901</td>
+<td>(ED-BAN-02, ED-LPR-01, EE-PILAR-01, ED-TVT-01)</td>
+<td>(ED-ALF-02)</td>
+<td>0.001005</td>
+<td>0.567568</td>
+<td>4.568963</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4000</td>
+<td>(ED-JAR-12, ED-LPR-01, ED-BAN-02)</td>
+<td>(ED-TVT-01)</td>
+<td>0.001005</td>
+<td>0.636364</td>
+<td>6.629475</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1920</td>
+<td>(EE-PCI-01, ED-EST-01, CAM-02)</td>
+<td>(ED-LPR-02)</td>
+<td>0.001005</td>
+<td>0.617647</td>
+<td>8.274095</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1919</td>
+<td>(EE-PCI-01, ED-LPR-02, CAM-02)</td>
+<td>(ED-EST-01)</td>
+<td>0.001005</td>
+<td>0.512195</td>
+<td>3.962922</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">4001</td>
+<td>(ED-JAR-32, ED-BAN-02, ED-LIB-12)</td>
+<td>(ED-TVT-01)</td>
+<td>0.001005</td>
+<td>0.552632</td>
+<td>5.757176</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="7a5d3a1e" class="cell" data-execution_count="33">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">6</span>))</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>plt.scatter(reglas[<span class="st">'support'</span>], reglas[<span class="st">'confidence'</span>], alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Soporte'</span>)</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Confianza'</span>)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="reglas_asociacion_files/figure-html/cell-13-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<div id="0ed7280b" class="cell" data-execution_count="37">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualizar soporte vs lift o confianza vs lift</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(reglas.nunique())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>antecedents    4304
+consequents     117
+support         120
+confidence      875
+lift           3943
+dtype: int64</code></pre>
+</div>
+</div>
+<p>Las mejores reglas se encuentran cuando la confianza es mayor a 0.7, indica que, en la mayoría de los casos, cuando aparece el consecuente, también aparece el antecedente. Esto da lugar a reglas más fiables. Por otro lado, las reglas más hacia la derecha indican un mayor soporte, es decir, estas reglas aparecen en más transacciones.</p>
+</section>
+</section>
+<section id="recomendador-de-piezas" class="level2" data-number="7.5">
+<h2 data-number="7.5" class="anchored" data-anchor-id="recomendador-de-piezas"><span class="header-section-number">7.5</span> Recomendador de piezas</h2>
+<p>Se ha implementado un algoritmo recomendador de piezas del catálogo estándar basado en las reglas de asociación. El algoritmo acepta una lista de una o más piezas y, en función de esas piezas, devuelve las N piezas más relevantes.</p>
+<div id="b5288bb8" class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> recomendar_pieza(piezas_usuario, reglas, top_n<span class="op">=</span><span class="dv">5</span>):</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    reglas_validas <span class="op">=</span> reglas[reglas[<span class="st">'antecedents'</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> x: piezas_usuario.issubset(x))]</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    reglas_validas <span class="op">=</span> reglas_validas.sort_values([<span class="st">'confidence'</span>, <span class="st">'lift'</span>], ascending<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    piezas_recomendadas <span class="op">=</span> []</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> consequents <span class="kw">in</span> reglas_validas[<span class="st">'consequents'</span>]:</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> pieza <span class="kw">in</span> consequents:</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> pieza <span class="kw">not</span> <span class="kw">in</span> piezas_usuario <span class="kw">and</span> pieza <span class="kw">not</span> <span class="kw">in</span> piezas_recomendadas:</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>                piezas_recomendadas.append(pieza)</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> <span class="bu">len</span>(piezas_recomendadas) <span class="op">&gt;=</span> top_n:</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">return</span> piezas_recomendadas</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> piezas_recomendadas</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="8f584d85" class="cell" data-execution_count="39">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>piezas_usuario <span class="op">=</span> {<span class="st">'ED-LIB-12'</span>, <span class="st">'ED-TVT-01'</span>}</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>recomendaciones <span class="op">=</span> recomendar_pieza(piezas_usuario, reglas, top_n<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Piezas recomendadas:"</span>, recomendaciones)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Piezas recomendadas: ['ED-JAR-32', 'SOF-022', 'ED-ALF-03', 'ED-LPR-01', 'ED-BAN-01']</code></pre>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../notebooks/mineria_de_procesos.html" class="pagination-link" aria-label="Mineria de procesos">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Mineria de procesos</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

@@ -31,4 +31,5 @@ services:
 
 volumes:
   mysql_data:
+    name: alvaroluque_mysql
   grafana_data:

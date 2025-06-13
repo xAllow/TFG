@@ -1,0 +1,21 @@
+project:
+  type: book
+
+book:
+  title: "Análisis de Logs"
+  author: "Alvaro Luque Torres"
+  chapters:
+    - index.md
+    - notebooks/preprocesamiento.ipynb
+    - notebooks/analisis_exploratorio.ipynb
+    - notebooks/serie_temporal.ipynb
+    - notebooks/clustering.ipynb
+    - notebooks/mineria_de_procesos.ipynb
+    - notebooks/reglas_asociacion.ipynb
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+    number-sections: true
+         

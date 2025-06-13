@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.31">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>2&nbsp; Prepocesamiento – Análisis de Logs</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../notebooks/analisis_exploratorio.html" rel="next">
+<link href="../index.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/preprocesamiento.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Prepocesamiento</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Análisis de Logs</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introducción</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/preprocesamiento.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Prepocesamiento</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/analisis_exploratorio.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Análisis exploratorio</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/serie_temporal.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Serie temporal</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/clustering.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Clustering</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/mineria_de_procesos.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Mineria de procesos</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/reglas_asociacion.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Reglas de Asociación</span></span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#juntar-los-diferentes-logs" id="toc-juntar-los-diferentes-logs" class="nav-link active" data-scroll-target="#juntar-los-diferentes-logs"><span class="header-section-number">2.1</span> Juntar los diferentes logs</a></li>
+  <li><a href="#obtener-los-diferentes-eventos" id="toc-obtener-los-diferentes-eventos" class="nav-link" data-scroll-target="#obtener-los-diferentes-eventos"><span class="header-section-number">2.2</span> Obtener los diferentes Eventos</a>
+  <ul class="collapse">
+  <li><a href="#mapear-los-eventos" id="toc-mapear-los-eventos" class="nav-link" data-scroll-target="#mapear-los-eventos"><span class="header-section-number">2.2.1</span> Mapear los Eventos</a></li>
+  <li><a href="#obtener-columnas-a-partir-de-la-descripción" id="toc-obtener-columnas-a-partir-de-la-descripción" class="nav-link" data-scroll-target="#obtener-columnas-a-partir-de-la-descripción"><span class="header-section-number">2.2.2</span> Obtener columnas a partir de la descripción</a></li>
+  </ul></li>
+  <li><a href="#obtener-columnas-geograficas-a-partir-de-una-api" id="toc-obtener-columnas-geograficas-a-partir-de-una-api" class="nav-link" data-scroll-target="#obtener-columnas-geograficas-a-partir-de-una-api"><span class="header-section-number">2.3</span> Obtener columnas geograficas a partir de una API</a></li>
+  <li><a href="#cambiar-los-tipos-de-las-columnas" id="toc-cambiar-los-tipos-de-las-columnas" class="nav-link" data-scroll-target="#cambiar-los-tipos-de-las-columnas"><span class="header-section-number">2.4</span> Cambiar los tipos de las columnas</a></li>
+  <li><a href="#guardar-dataframes" id="toc-guardar-dataframes" class="nav-link" data-scroll-target="#guardar-dataframes"><span class="header-section-number">2.5</span> Guardar dataframes</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Prepocesamiento</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>En el contexto del análisis de datos basados en registros generados por una aplicación web, el preprocesamiento constituye una etapa fundamental dentro de la minería de datos. En este caso, casi la totalidad de la información está en bruto dentro de la columna Descripción, por lo que es necesario extraer de aquí todos los campos que nos serán útiles a posteriori para el análisis y visualización de los mismos.</p>
+<section id="juntar-los-diferentes-logs" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="juntar-los-diferentes-logs"><span class="header-section-number">2.1</span> Juntar los diferentes logs</h2>
+<div id="2bd3abc2" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>csvs <span class="op">=</span> glob.glob(<span class="st">'..</span><span class="er">\</span><span class="st">logs/*.csv'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="a069c3cd" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.concat([pd.read_csv(f,sep <span class="op">=</span> <span class="st">";"</span>, encoding<span class="op">=</span><span class="st">"utf-8"</span>) <span class="cf">for</span> f <span class="kw">in</span> csvs], ignore_index<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>pd.set_option(<span class="st">'display.max_colwidth'</span>, <span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="29c50ca7" class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>df.info()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;class 'pandas.core.frame.DataFrame'&gt;
+RangeIndex: 2008570 entries, 0 to 2008569
+Data columns (total 6 columns):
+ #   Column       Dtype 
+---  ------       ----- 
+ 0   Fecha        object
+ 1   Usuario      object
+ 2   ID           int64 
+ 3   Acceso       object
+ 4   Descripción  object
+ 5   IP           object
+dtypes: int64(1), object(5)
+memory usage: 91.9+ MB</code></pre>
+</div>
+</div>
+</section>
+<section id="obtener-los-diferentes-eventos" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="obtener-los-diferentes-eventos"><span class="header-section-number">2.2</span> Obtener los diferentes Eventos</h2>
+<p>El primer paso consiste en obtener la primera palabra de cada fila de dicha columna y conservar solo los valores únicos, lo que permite obtener una visión general de los distintos tipos de eventos registrados.</p>
+<div id="8832b0b9-d525-4a7b-b6f2-49034e2fe24e" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>lista <span class="op">=</span> df[<span class="st">"Descripción"</span>].astype(<span class="bu">str</span>).<span class="bu">str</span>.split().<span class="bu">str</span>[<span class="dv">0</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="07c9a084-dcc4-4c2e-b752-a4571522e43f" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="bu">sorted</span>(lista.unique())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="5">
+<pre><code>['(Sesiones',
+ 'Aceptar',
+ 'Añadida',
+ 'Borrado',
+ 'Cambio',
+ 'Cargado',
+ 'Creado',
+ 'Cuenta',
+ 'Duración',
+ 'Error',
+ 'Generar',
+ 'Intento',
+ 'Limpiar',
+ 'Login',
+ 'Logout',
+ 'Nuevo',
+ 'Solicitud',
+ 'Visualizar',
+ 'nan']</code></pre>
+</div>
+</div>
+<div id="fa77c13b-1099-4704-9578-d55bde9cff08" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="bu">len</span>(lista.unique())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="6">
+<pre><code>19</code></pre>
+</div>
+</div>
+<section id="mapear-los-eventos" class="level3" data-number="2.2.1">
+<h3 data-number="2.2.1" class="anchored" data-anchor-id="mapear-los-eventos"><span class="header-section-number">2.2.1</span> Mapear los Eventos</h3>
+<p>Una vez identificados estos valores únicos, se realiza una observación manual, filtrando las filas por cada uno de ellos, debido a que existen casos en los que distintos eventos comparten una misma palabra inicial. Este proceso de exploración también ayuda a detectar patrones en la columna Descripción.</p>
+<div id="cf595d17-2ff3-45da-baaf-ec1f5d76b54e" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>mapeo_eventos <span class="op">=</span> {</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'(Sesiones'</span>: <span class="kw">lambda</span> x: <span class="st">"CONEXION"</span> <span class="cf">if</span> re.search(<span class="vs">r'</span><span class="dv">\b</span><span class="vs">conectada</span><span class="dv">\b</span><span class="vs">'</span>, x.lower()) <span class="cf">else</span> <span class="st">"DESCONEXION"</span>,</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Aceptar'</span>: <span class="st">"ACEPTAR_PRIVACIDAD"</span>,       </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Añadida'</span>: <span class="st">"AÑADIR_PIEZA"</span>,</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Borrado'</span>: <span class="st">"BORRAR_DISEÑO"</span>,          </span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Cambio'</span>: <span class="st">"CAMBIO_CONTRASEÑA"</span>,              </span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Cargado'</span>: <span class="st">"CARGAR_DISENO"</span>,</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Creado'</span>: <span class="st">"CREAR_DISENO"</span>,</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Cuenta'</span>: <span class="st">"CUENTA"</span>,</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Duración'</span>: <span class="st">"DURACION"</span>,             </span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Error'</span>: <span class="st">"ERROR_SISTEMA"</span>,          </span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Generar'</span>: <span class="kw">lambda</span> x: <span class="st">"GEN_PRESUPUESTO"</span> <span class="cf">if</span> re.search(<span class="vs">r'</span><span class="dv">\b</span><span class="vs">presupuesto</span><span class="dv">\b</span><span class="vs">'</span>, x.lower()) <span class="cf">else</span> <span class="st">"GEN_PEDIDO"</span>,</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Intento'</span>: <span class="st">"INTENTO_RESET"</span>,       </span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Limpiar'</span>: <span class="st">"LIMPIAR_DATOS"</span>,        </span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Login'</span>: <span class="st">"LOGIN"</span>,</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Logout'</span>: <span class="st">"LOGOUT"</span>,</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Nuevo'</span>: <span class="st">"NUEVO_LOGO"</span>,              </span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Solicitud'</span>: <span class="st">"SOLICITUD_RESET"</span>,            </span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Visualizar'</span>: <span class="kw">lambda</span> x: <span class="st">"VER_PRESUPUESTO"</span> <span class="cf">if</span> re.search(<span class="vs">r'</span><span class="dv">\b</span><span class="vs">presupuesto</span><span class="dv">\b</span><span class="vs">'</span>, x.lower()) <span class="cf">else</span> <span class="st">"VER_PEDIDO"</span>,</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="60756075-6ba7-4256-840a-eada39182c04" class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> categorizar_evento(descripcion):</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    descripcion <span class="op">=</span> <span class="bu">str</span>(descripcion)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    primera_palabra <span class="op">=</span> descripcion.split()[<span class="dv">0</span>]</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> primera_palabra <span class="kw">in</span> mapeo_eventos:</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">callable</span>(mapeo_eventos[primera_palabra]):</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> mapeo_eventos[primera_palabra](descripcion)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> mapeo_eventos[primera_palabra]</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="st">"OTRO"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="55205910-e9af-419a-94ca-0c9539f86b35" class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"Evento"</span>] <span class="op">=</span> df[<span class="st">"Descripción"</span>].<span class="bu">apply</span>(categorizar_evento)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="49cfa33e-b55c-45a1-b0f9-387f9e7b1af7" class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>df[df[<span class="st">'Evento'</span>] <span class="op">==</span> <span class="st">'AÑADIR_PIEZA'</span>][[<span class="st">'Descripción'</span>, <span class="st">'Evento'</span>]].head(<span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="10">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Descripción</th>
+<th data-quarto-table-cell-role="th">Evento</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>Añadida la pieza SIN-021 con id 2068 del catál...</td>
+<td>AÑADIR_PIEZA</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>Añadida la pieza SOF-022 con id 4684 del catál...</td>
+<td>AÑADIR_PIEZA</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>Añadida la pieza BA521A con id 319127 del catá...</td>
+<td>AÑADIR_PIEZA</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">6</td>
+<td>Añadida la pieza 1252 con id 81570 del catálog...</td>
+<td>AÑADIR_PIEZA</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">7</td>
+<td>Añadida la pieza CNI406T con id 359241 del cat...</td>
+<td>AÑADIR_PIEZA</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">9</td>
+<td>Añadida la pieza BA178 con id 318748 del catál...</td>
+<td>AÑADIR_PIEZA</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">10</td>
+<td>Añadida la pieza BA510A con id 319121 del catá...</td>
+<td>AÑADIR_PIEZA</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">12</td>
+<td>Añadida la pieza ED-LIB-12 con id 20055 del ca...</td>
+<td>AÑADIR_PIEZA</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">20</td>
+<td>Añadida la pieza 5700 con id 310452 del catálo...</td>
+<td>AÑADIR_PIEZA</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">34</td>
+<td>Añadida la pieza ED-TVT-01 con id 2064 del cat...</td>
+<td>AÑADIR_PIEZA</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="obtener-columnas-a-partir-de-la-descripción" class="level3" data-number="2.2.2">
+<h3 data-number="2.2.2" class="anchored" data-anchor-id="obtener-columnas-a-partir-de-la-descripción"><span class="header-section-number">2.2.2</span> Obtener columnas a partir de la descripción</h3>
+<p>Posteriormente, estos patrones se utilizan para definir expresiones regulares que permiten generar nuevas columnas.</p>
+<div id="f863779a-2a1e-4452-9fc0-6a865cb5b9ce" class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> extraer_columnas(row):</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    evento <span class="op">=</span> row[<span class="st">'Evento'</span>]</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    desc <span class="op">=</span> row[<span class="st">'Descripción'</span>]</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> pd.isna(desc):</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> {}</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> evento <span class="op">==</span> <span class="st">'AÑADIR_PIEZA'</span>:</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>        catalogo_completo <span class="op">=</span> buscar(<span class="vs">r'catálogo </span><span class="kw">(</span><span class="dv">.</span><span class="op">*?</span><span class="kw">)</span><span class="vs"> en el diseño'</span>, desc)</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> catalogo_completo <span class="kw">and</span> <span class="st">' - '</span> <span class="kw">in</span> catalogo_completo:</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>            fabricante, catalogo <span class="op">=</span> catalogo_completo.split(<span class="st">' - '</span>, <span class="dv">1</span>)</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>            fabricante, catalogo <span class="op">=</span> <span class="va">None</span>, catalogo_completo</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> {</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>            <span class="st">'pieza'</span>: buscar(<span class="vs">r'pieza </span><span class="kw">(</span><span class="pp">[</span><span class="dv">\w</span><span class="pp">-]</span><span class="op">+</span><span class="kw">)</span><span class="vs">'</span>, desc),</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>            <span class="st">'piezaid'</span>: buscar(<span class="vs">r'id </span><span class="kw">(</span><span class="dv">\d</span><span class="op">+</span><span class="kw">)</span><span class="vs">'</span>, desc),</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>            <span class="st">'fabricante'</span>: fabricante,</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>            <span class="st">'catalogo'</span>: catalogo,</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>            <span class="st">'diseñoid'</span>: buscar(<span class="vs">r'diseño con id: </span><span class="kw">(</span><span class="vs">-</span><span class="op">?</span><span class="dv">\d</span><span class="op">+</span><span class="kw">)</span><span class="vs">'</span>, desc)</span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> evento <span class="kw">in</span> [<span class="st">'LOGIN'</span>, <span class="st">'LOGOUT'</span>, <span class="st">'SOLICITUD_RESET'</span>, <span class="st">'ACEPTAR_PRIVACIDAD'</span>, <span class="st">'CAMBIO_CONTRASEÑA'</span>]:</span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> {<span class="st">'userid'</span>: buscar(<span class="vs">r'userID: </span><span class="kw">(</span><span class="dv">\w</span><span class="op">+</span><span class="kw">)</span><span class="vs">'</span>, desc)}</span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> evento <span class="op">==</span> <span class="st">'GEN_PEDIDO'</span>:</span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> {</span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>            <span class="st">'diseñoid'</span>: buscar(<span class="vs">r'diseño con id: </span><span class="kw">(</span><span class="vs">-</span><span class="op">?</span><span class="dv">\d</span><span class="op">+</span><span class="kw">)</span><span class="vs">'</span>, desc),</span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>            <span class="st">'fabricante'</span>: buscar(<span class="vs">r'fabricante </span><span class="kw">(</span><span class="dv">.</span><span class="op">*</span><span class="kw">)</span><span class="vs">'</span>, desc)</span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> evento <span class="kw">in</span> [<span class="st">'CREAR_DISENO'</span>, <span class="st">'CARGAR_DISENO'</span>, <span class="st">'GEN_PRESUPUESTO'</span>, <span class="st">'VER_PRESUPUESTO'</span>, <span class="st">'ERROR_SISTEMA'</span>, <span class="st">'BORRAR_DISEÑO'</span>, <span class="st">'VER_PEDIDO'</span>]:</span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> {<span class="st">'diseñoid'</span>: buscar(<span class="vs">r'diseño con id: </span><span class="kw">(</span><span class="vs">-</span><span class="op">?</span><span class="dv">\d</span><span class="op">+</span><span class="kw">)</span><span class="vs">'</span>, desc)}</span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> evento <span class="op">==</span> <span class="st">'INTENTO_RESET'</span>:</span>
+<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> {<span class="st">'email'</span>: buscar(<span class="vs">r'email</span><span class="pp">[:</span><span class="dv">\s</span><span class="pp">]</span><span class="op">+</span><span class="kw">(</span><span class="dv">\S</span><span class="op">+</span><span class="kw">)</span><span class="vs">'</span>, desc)}</span>
+<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> evento <span class="op">==</span> <span class="st">'DURACION'</span>:</span>
+<span id="cb14-39"><a href="#cb14-39" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> {<span class="st">'minutos'</span>: buscar(<span class="vs">r'Duración de la sesión:</span><span class="dv">\s</span><span class="op">*</span><span class="kw">(</span><span class="pp">[</span><span class="dv">\d</span><span class="pp">.]</span><span class="op">+</span><span class="kw">)</span><span class="vs">'</span>, desc)}</span>
+<span id="cb14-40"><a href="#cb14-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-41"><a href="#cb14-41" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> evento <span class="op">==</span> <span class="st">'NUEVO_LOGO'</span>:</span>
+<span id="cb14-42"><a href="#cb14-42" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> {<span class="st">'logo'</span>: buscar(<span class="vs">r'logo</span><span class="pp">[:</span><span class="dv">\s</span><span class="pp">]</span><span class="op">+</span><span class="kw">(</span><span class="dv">\w</span><span class="op">+</span><span class="kw">)</span><span class="vs">'</span>, desc)}</span>
+<span id="cb14-43"><a href="#cb14-43" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-44"><a href="#cb14-44" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> evento <span class="kw">in</span> [<span class="st">'CONEXION'</span>, <span class="st">'DESCONEXION'</span>]:</span>
+<span id="cb14-45"><a href="#cb14-45" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> {<span class="st">'nsesiones'</span>: buscar(<span class="vs">r'activas </span><span class="kw">(</span><span class="dv">\d</span><span class="op">+</span><span class="kw">)</span><span class="vs">'</span>, desc)}</span>
+<span id="cb14-46"><a href="#cb14-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-47"><a href="#cb14-47" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {}</span>
+<span id="cb14-48"><a href="#cb14-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-49"><a href="#cb14-49" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> buscar(patron, texto):</span>
+<span id="cb14-50"><a href="#cb14-50" aria-hidden="true" tabindex="-1"></a>    match <span class="op">=</span> re.search(patron, texto)</span>
+<span id="cb14-51"><a href="#cb14-51" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> match.group(<span class="dv">1</span>) <span class="cf">if</span> match <span class="cf">else</span> <span class="va">None</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="798c47f8-6f4a-4e78-b406-9c7301640194" class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>df_extra <span class="op">=</span> df.<span class="bu">apply</span>(extraer_columnas, axis<span class="op">=</span><span class="dv">1</span>, result_type<span class="op">=</span><span class="st">'expand'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="f8c9bd26-f6d9-45b3-9650-5c7cef9fa829" class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.concat([df, df_extra], axis<span class="op">=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="obtener-columnas-geograficas-a-partir-de-una-api" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="obtener-columnas-geograficas-a-partir-de-una-api"><span class="header-section-number">2.3</span> Obtener columnas geograficas a partir de una API</h2>
+<p>El conjunto de datos inicial nos provee las IPs de los diferentes usuarios que acceden a la aplicación. Para enriquecer esta información, se ha optado por utilizar una API externa, ipinfo.io, que permite obtener la ubicación geográfica aproximada asociada a cada IP, que nos proporciona la ciudad, la región, el país y las coordenadas (latitud y longitud).</p>
+<div id="c4562d54-f7d5-4633-b46c-d7dcc2b6ff37" class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> geolocalizar(ip):</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    url<span class="op">=</span> <span class="ss">f'https://ipinfo.io/</span><span class="sc">{</span>ip<span class="sc">}</span><span class="ss">?token=aff46df76e5e05'</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>        response <span class="op">=</span> requests.get(url)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>        response.raise_for_status()</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>        data <span class="op">=</span> response.json()</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>        lat_str, lng_str <span class="op">=</span> data[<span class="st">'loc'</span>].split(<span class="st">','</span>)</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>        lat, lng <span class="op">=</span> <span class="bu">float</span>(lat_str), <span class="bu">float</span>(lng_str)</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> {</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>            <span class="st">'city'</span>: data.get(<span class="st">'city'</span>),</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>            <span class="st">'region'</span>: data.get(<span class="st">'region'</span>),</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>            <span class="st">'country'</span>: data.get(<span class="st">'country'</span>),</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>            <span class="st">'lat'</span>: lat,</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>            <span class="st">'lng'</span>: lng</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> e:</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f'Error con la ip: </span><span class="sc">{</span>ip<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> {<span class="st">'city'</span>: <span class="va">None</span>, <span class="st">'region'</span>: <span class="va">None</span>, <span class="st">'country'</span>: <span class="va">None</span>, <span class="st">'lat'</span>: <span class="va">None</span>, <span class="st">'lng'</span>: <span class="va">None</span>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="ca566a1e-652f-44d8-9984-324824421387" class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>ips <span class="op">=</span> df[<span class="st">'IP'</span>].unique()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>La información recuperada tras realizar la consulta a la API se almacena en un archivo JSON, que actúa como caché para evitar realizar peticiones repetidas.</p>
+<div id="8ff6c477-552d-4354-8ddf-441f3be5d964" class="cell" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>geo <span class="op">=</span> <span class="st">'..</span><span class="er">\</span><span class="st">data</span><span class="er">\</span><span class="st">geolocalizacion.json'</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> os.path.exists(geo) <span class="kw">and</span> os.path.getsize(geo) <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> <span class="bu">open</span>(geo, <span class="st">'r'</span>) <span class="im">as</span> f:</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>        geolocalizacion <span class="op">=</span> json.load(f)</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    geolocalizacion <span class="op">=</span> {}</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ip <span class="kw">in</span> ips:</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> ip <span class="kw">not</span> <span class="kw">in</span> geolocalizacion:</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>        geolocalizacion[ip] <span class="op">=</span> geolocalizar(ip) </span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">'..</span><span class="er">\</span><span class="st">data</span><span class="er">\</span><span class="st">geolocalizacion.json'</span>, <span class="st">'w'</span>) <span class="im">as</span> f:</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>    json.dump(geolocalizacion, f)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Posteriormente, estos datos se incorporan a la tabla mediante un mapeo que accede al archivo JSON generado, lo que permite la creación de nuevas columnas con la información geográfica correspondiente.</p>
+<div id="afa94138-60ef-4571-ae1d-57faed5253e4" class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'city'</span>] <span class="op">=</span> df[<span class="st">'IP'</span>].<span class="bu">map</span>(<span class="kw">lambda</span> ip: geolocalizacion.get(ip, {}).get(<span class="st">'city'</span>))</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'region'</span>] <span class="op">=</span> df[<span class="st">'IP'</span>].<span class="bu">map</span>(<span class="kw">lambda</span> ip: geolocalizacion.get(ip, {}).get(<span class="st">'region'</span>))</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'country'</span>] <span class="op">=</span> df[<span class="st">'IP'</span>].<span class="bu">map</span>(<span class="kw">lambda</span> ip: geolocalizacion.get(ip, {}).get(<span class="st">'country'</span>))</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'lat'</span>] <span class="op">=</span> df[<span class="st">'IP'</span>].<span class="bu">map</span>(<span class="kw">lambda</span> ip: geolocalizacion.get(ip, {}).get(<span class="st">'lat'</span>))</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'lng'</span>] <span class="op">=</span> df[<span class="st">'IP'</span>].<span class="bu">map</span>(<span class="kw">lambda</span> ip: geolocalizacion.get(ip, {}).get(<span class="st">'lng'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="cambiar-los-tipos-de-las-columnas" class="level2" data-number="2.4">
+<h2 data-number="2.4" class="anchored" data-anchor-id="cambiar-los-tipos-de-las-columnas"><span class="header-section-number">2.4</span> Cambiar los tipos de las columnas</h2>
+<p>Se procede a ajustar los tipos de datos con el fin de optimizar el consumo de memoria, considerando las limitaciones de la máquina. Además, se ha decidido eliminar de la columna Usuario el identificador, puesto que no aporta información relevante y se prefiere mostrar el nombre limpio. También se ha especificado que Fecha es un datetime con el formato %Y/ %m/ %d %H: %M: %S y se han creado dos columnas adicionales (Hora y NombreDia), para facilitar la realización de algunas visualizaciones.</p>
+<div id="3c5f4c68-4b0d-4d8f-815e-a04ab11e8c94" class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'Fecha'</span>] <span class="op">=</span> pd.to_datetime(df[<span class="st">'Fecha'</span>], <span class="bu">format</span><span class="op">=</span><span class="st">'%Y/%m/</span><span class="sc">%d</span><span class="st"> %H:%M:%S'</span>, errors<span class="op">=</span><span class="st">'coerce'</span>)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'Hora'</span>] <span class="op">=</span> df[<span class="st">'Fecha'</span>].dt.hour</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'NombreDia'</span>] <span class="op">=</span> df[<span class="st">'Fecha'</span>].dt.day_name()</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df.sort_values(<span class="st">'Fecha'</span>).reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'Usuario'</span>] <span class="op">=</span> df[<span class="st">'Usuario'</span>].<span class="bu">str</span>.replace(<span class="vs">r'</span><span class="dv">^</span><span class="vs">#</span><span class="dv">\d</span><span class="op">+</span><span class="dv">\s</span><span class="op">*</span><span class="vs">-</span><span class="dv">\s</span><span class="op">*</span><span class="vs">'</span>, <span class="st">''</span>, regex<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="a58484dd" class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df.astype({</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Evento'</span>: <span class="st">'string'</span>, <span class="st">'nsesiones'</span>: <span class="st">'Int64'</span>,</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'pieza'</span>: <span class="st">'string'</span>, <span class="st">'fabricante'</span>: <span class="st">'string'</span>,</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'catalogo'</span>: <span class="st">'string'</span>, <span class="st">'minutos'</span>: <span class="st">'float32'</span>,</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'logo'</span>: <span class="st">'string'</span>, <span class="st">'email'</span>: <span class="st">'string'</span>,</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'city'</span>: <span class="st">'category'</span>, <span class="st">'region'</span>: <span class="st">'category'</span>,</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'country'</span>: <span class="st">'category'</span>, <span class="st">'lat'</span>: <span class="st">'float32'</span>,</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'lng'</span>: <span class="st">'float32'</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="a95ac5e0" class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>df.head(<span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="20">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Fecha</th>
+<th data-quarto-table-cell-role="th">Usuario</th>
+<th data-quarto-table-cell-role="th">ID</th>
+<th data-quarto-table-cell-role="th">Acceso</th>
+<th data-quarto-table-cell-role="th">Descripción</th>
+<th data-quarto-table-cell-role="th">IP</th>
+<th data-quarto-table-cell-role="th">Evento</th>
+<th data-quarto-table-cell-role="th">diseñoid</th>
+<th data-quarto-table-cell-role="th">nsesiones</th>
+<th data-quarto-table-cell-role="th">pieza</th>
+<th data-quarto-table-cell-role="th">...</th>
+<th data-quarto-table-cell-role="th">minutos</th>
+<th data-quarto-table-cell-role="th">logo</th>
+<th data-quarto-table-cell-role="th">email</th>
+<th data-quarto-table-cell-role="th">city</th>
+<th data-quarto-table-cell-role="th">region</th>
+<th data-quarto-table-cell-role="th">country</th>
+<th data-quarto-table-cell-role="th">lat</th>
+<th data-quarto-table-cell-role="th">lng</th>
+<th data-quarto-table-cell-role="th">Hora</th>
+<th data-quarto-table-cell-role="th">NombreDia</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>2023-11-24 12:08:35</td>
+<td>Rafael Marcos Luque Baena</td>
+<td>2883799</td>
+<td>OK</td>
+<td>Limpiar LOG</td>
+<td>150.214.58.151</td>
+<td>LIMPIAR_DATOS</td>
+<td>NaN</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>...</td>
+<td>NaN</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>Málaga</td>
+<td>Andalusia</td>
+<td>ES</td>
+<td>36.720200</td>
+<td>-4.4203</td>
+<td>12</td>
+<td>Friday</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>2023-11-24 12:08:38</td>
+<td>BIJOTA ALZARIAK. S.L.</td>
+<td>2883802</td>
+<td>OK</td>
+<td>Añadida la pieza ED-ALF-02 con id 20020 del ca...</td>
+<td>88.14.10.127</td>
+<td>AÑADIR_PIEZA</td>
+<td>55976</td>
+<td>&lt;NA&gt;</td>
+<td>ED-ALF-02</td>
+<td>...</td>
+<td>NaN</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>Valencia</td>
+<td>Valencia</td>
+<td>ES</td>
+<td>39.473900</td>
+<td>-0.3797</td>
+<td>12</td>
+<td>Friday</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>2023-11-24 12:08:38</td>
+<td>BIJOTA ALZARIAK. S.L.</td>
+<td>2883800</td>
+<td>OK</td>
+<td>Añadida la pieza ED-LIB-14 con id 20057 del ca...</td>
+<td>88.14.10.127</td>
+<td>AÑADIR_PIEZA</td>
+<td>55976</td>
+<td>&lt;NA&gt;</td>
+<td>ED-LIB-14</td>
+<td>...</td>
+<td>NaN</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>Valencia</td>
+<td>Valencia</td>
+<td>ES</td>
+<td>39.473900</td>
+<td>-0.3797</td>
+<td>12</td>
+<td>Friday</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>2023-11-24 12:08:38</td>
+<td>MUEBLES MEDINA 2015 S.L.</td>
+<td>2883801</td>
+<td>OK</td>
+<td>Añadida la pieza 607354G con id 219337 del cat...</td>
+<td>185.210.19.174</td>
+<td>AÑADIR_PIEZA</td>
+<td>56317</td>
+<td>&lt;NA&gt;</td>
+<td>607354G</td>
+<td>...</td>
+<td>NaN</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>Torrevieja</td>
+<td>Valencia</td>
+<td>ES</td>
+<td>37.978699</td>
+<td>-0.6822</td>
+<td>12</td>
+<td>Friday</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>2023-11-24 12:08:39</td>
+<td>BIJOTA ALZARIAK. S.L.</td>
+<td>2883803</td>
+<td>OK</td>
+<td>Añadida la pieza EE-PBA-03 con id 19976 del ca...</td>
+<td>88.14.10.127</td>
+<td>AÑADIR_PIEZA</td>
+<td>55976</td>
+<td>&lt;NA&gt;</td>
+<td>EE-PBA-03</td>
+<td>...</td>
+<td>NaN</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>Valencia</td>
+<td>Valencia</td>
+<td>ES</td>
+<td>39.473900</td>
+<td>-0.3797</td>
+<td>12</td>
+<td>Friday</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5</td>
+<td>2023-11-24 12:08:42</td>
+<td>MOBLES SALVANY</td>
+<td>2883804</td>
+<td>OK</td>
+<td>Añadida la pieza DC-10 con id 396700 del catál...</td>
+<td>80.58.139.181</td>
+<td>AÑADIR_PIEZA</td>
+<td>56555</td>
+<td>&lt;NA&gt;</td>
+<td>DC-10</td>
+<td>...</td>
+<td>NaN</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>Premià de Mar</td>
+<td>Catalonia</td>
+<td>ES</td>
+<td>41.492100</td>
+<td>2.3652</td>
+<td>12</td>
+<td>Friday</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">6</td>
+<td>2023-11-24 12:08:43</td>
+<td>MUEBLES NIETO</td>
+<td>2883805</td>
+<td>OK</td>
+<td>Añadida la pieza V1041606D con id 49734 del ca...</td>
+<td>81.38.17.247</td>
+<td>AÑADIR_PIEZA</td>
+<td>55123</td>
+<td>&lt;NA&gt;</td>
+<td>V1041606D</td>
+<td>...</td>
+<td>NaN</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>Ávila</td>
+<td>Castille and León</td>
+<td>ES</td>
+<td>40.657200</td>
+<td>-4.6995</td>
+<td>12</td>
+<td>Friday</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">7</td>
+<td>2023-11-24 12:08:43</td>
+<td>MUBAK MARESME</td>
+<td>2883806</td>
+<td>OK</td>
+<td>Cargado el diseño con id: 56398</td>
+<td>149.6.200.198</td>
+<td>CARGAR_DISENO</td>
+<td>56398</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>...</td>
+<td>NaN</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>Barcelona</td>
+<td>Catalonia</td>
+<td>ES</td>
+<td>41.388802</td>
+<td>2.1590</td>
+<td>12</td>
+<td>Friday</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">8</td>
+<td>2023-11-24 12:08:44</td>
+<td>RUIZ MORAGA FRANCISCO</td>
+<td>2883807</td>
+<td>OK</td>
+<td>Cargado el diseño con id: 56313</td>
+<td>37.132.236.134</td>
+<td>CARGAR_DISENO</td>
+<td>56313</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>...</td>
+<td>NaN</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>Bolaños de Calatrava</td>
+<td>Castille-La Mancha</td>
+<td>ES</td>
+<td>38.906898</td>
+<td>-3.6635</td>
+<td>12</td>
+<td>Friday</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">9</td>
+<td>2023-11-24 12:08:46</td>
+<td>MUBAK MARESME</td>
+<td>2883808</td>
+<td>OK</td>
+<td>Cargado el diseño con id: 56398</td>
+<td>149.6.200.198</td>
+<td>CARGAR_DISENO</td>
+<td>56398</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>...</td>
+<td>NaN</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>Barcelona</td>
+<td>Catalonia</td>
+<td>ES</td>
+<td>41.388802</td>
+<td>2.1590</td>
+<td>12</td>
+<td>Friday</td>
+</tr>
+</tbody>
+</table>
+
+<p>10 rows × 24 columns</p>
+</div>
+</div>
+</div>
+<div id="5e78111f" class="cell" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>df.info(memory_usage<span class="op">=</span><span class="st">'deep'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;class 'pandas.core.frame.DataFrame'&gt;
+RangeIndex: 2008570 entries, 0 to 2008569
+Data columns (total 24 columns):
+ #   Column       Dtype         
+---  ------       -----         
+ 0   Fecha        datetime64[ns]
+ 1   Usuario      object        
+ 2   ID           int64         
+ 3   Acceso       object        
+ 4   Descripción  object        
+ 5   IP           object        
+ 6   Evento       string        
+ 7   diseñoid     object        
+ 8   nsesiones    Int64         
+ 9   pieza        string        
+ 10  piezaid      object        
+ 11  fabricante   string        
+ 12  catalogo     string        
+ 13  userid       object        
+ 14  minutos      float32       
+ 15  logo         string        
+ 16  email        string        
+ 17  city         category      
+ 18  region       category      
+ 19  country      category      
+ 20  lat          float32       
+ 21  lng          float32       
+ 22  Hora         int32         
+ 23  NombreDia    object        
+dtypes: Int64(1), category(3), datetime64[ns](1), float32(3), int32(1), int64(1), object(8), string(6)
+memory usage: 1.8 GB</code></pre>
+</div>
+</div>
+</section>
+<section id="guardar-dataframes" class="level2" data-number="2.5">
+<h2 data-number="2.5" class="anchored" data-anchor-id="guardar-dataframes"><span class="header-section-number">2.5</span> Guardar dataframes</h2>
+<div id="68d71d22-391f-4654-9afe-4805cab85627" class="cell" data-execution_count="22">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>df.to_parquet(<span class="st">"..</span><span class="er">\</span><span class="st">data</span><span class="er">\</span><span class="st">logs.parquet"</span>,index<span class="op">=</span><span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="5624b964-e458-40d2-a345-98e585917bdd" class="cell" data-execution_count="23">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>df.to_csv(<span class="st">"..</span><span class="er">\</span><span class="st">data</span><span class="er">\</span><span class="st">logs.csv"</span>,index<span class="op">=</span><span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../index.html" class="pagination-link" aria-label="Introducción">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introducción</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../notebooks/analisis_exploratorio.html" class="pagination-link" aria-label="Análisis exploratorio">
+        <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Análisis exploratorio</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

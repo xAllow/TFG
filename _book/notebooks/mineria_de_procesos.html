@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>7&nbsp; Mineria de procesos – Análisis de Logs</title>
+<title>6&nbsp; Mineria de procesos – Análisis de Logs</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -65,7 +65,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../notebooks/reglas_asociacion.html" rel="prev">
+<link href="../notebooks/reglas_asociacion.html" rel="next">
+<link href="../notebooks/clustering.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
@@ -119,7 +120,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/mineria_de_procesos.html"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Mineria de procesos</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/mineria_de_procesos.html"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Mineria de procesos</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -147,7 +148,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Inicio</span></span></a>
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introducción</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -171,19 +172,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../notebooks/clustering.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Clustering con PCA y K-Means</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../notebooks/reglas_asociacion.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Reglas de Asociación</span></span></a>
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Clustering</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../notebooks/mineria_de_procesos.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Mineria de procesos</span></span></a>
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Mineria de procesos</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/reglas_asociacion.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Reglas de Asociación</span></span></a>
   </div>
 </li>
     </ul>
@@ -196,8 +197,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#preparar-datos" id="toc-preparar-datos" class="nav-link active" data-scroll-target="#preparar-datos"><span class="header-section-number">7.1</span> Preparar datos</a></li>
-  <li><a href="#algoritmo-heuristic-miner" id="toc-algoritmo-heuristic-miner" class="nav-link" data-scroll-target="#algoritmo-heuristic-miner"><span class="header-section-number">7.2</span> Algoritmo Heuristic Miner</a></li>
+  <li><a href="#preparar-datos" id="toc-preparar-datos" class="nav-link active" data-scroll-target="#preparar-datos"><span class="header-section-number">6.1</span> Preparar datos</a></li>
+  <li><a href="#algoritmo-heuristic-miner" id="toc-algoritmo-heuristic-miner" class="nav-link" data-scroll-target="#algoritmo-heuristic-miner"><span class="header-section-number">6.2</span> Algoritmo Heuristic Miner</a></li>
   </ul>
 </nav>
     </div>
@@ -206,7 +207,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Mineria de procesos</span></h1>
+<h1 class="title"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Mineria de procesos</span></h1>
 </div>
 
 
@@ -229,8 +230,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><p><strong>Verificación de conformidad:</strong> Compara un modelo de proceso existente con el comportamiento registrado en los logs de eventos. Sirve para encontrar discrepancias entre el resultado esperado y el real.</p></li>
 <li><p><strong>Mejora de procesos:</strong> Enriquece un modelo existente con información adicional a partir de datos reales.</p></li>
 </ul>
-<section id="preparar-datos" class="level2" data-number="7.1">
-<h2 data-number="7.1" class="anchored" data-anchor-id="preparar-datos"><span class="header-section-number">7.1</span> Preparar datos</h2>
+<section id="preparar-datos" class="level2" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="preparar-datos"><span class="header-section-number">6.1</span> Preparar datos</h2>
 <p>En este análisis se va a seguir un descubrimiento de procesos aplicando el algoritmo Heuristic Miner. Antes de ello, es necesario preparar un conjunto de datos válido para crear un event log.</p>
 <div id="1a5834cd" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df.sort_values([<span class="st">'Usuario'</span>, <span class="st">'Fecha'</span>]) </span>
@@ -323,8 +324,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
-<section id="algoritmo-heuristic-miner" class="level2" data-number="7.2">
-<h2 data-number="7.2" class="anchored" data-anchor-id="algoritmo-heuristic-miner"><span class="header-section-number">7.2</span> Algoritmo Heuristic Miner</h2>
+<section id="algoritmo-heuristic-miner" class="level2" data-number="6.2">
+<h2 data-number="6.2" class="anchored" data-anchor-id="algoritmo-heuristic-miner"><span class="header-section-number">6.2</span> Algoritmo Heuristic Miner</h2>
 <p>El Heuristic Miner es un algoritmo diseñado para descubrir modelos de procesos a partir de registros reales de eventos. Se basa en frecuencias y dependencias entre actividades observadas, lo que lo hace más robusto frente al ruido. Usa reglas heurísticas para construir un modelo que refleje la conducta predominante.</p>
 <p>El Flexible Heuristic Miner es una mejora propuesta por Medeiros, Weijters y van der Aalst. Fue diseñada para eliminar algunas limitaciones del algoritmo anterior, y nos permite ajustar parámetros como la dependencia mínima entre actividades, la detección de estructuras paralelas y la sensibilidad ante bucles.</p>
 <ul>
@@ -1180,11 +1181,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../notebooks/reglas_asociacion.html" class="pagination-link" aria-label="Reglas de Asociación">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Reglas de Asociación</span></span>
+      <a href="../notebooks/clustering.html" class="pagination-link" aria-label="Clustering">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Clustering</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
+      <a href="../notebooks/reglas_asociacion.html" class="pagination-link" aria-label="Reglas de Asociación">
+        <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Reglas de Asociación</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
   </div>
 </nav>
 </div> <!-- /content -->

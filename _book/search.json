@@ -120,6 +120,16 @@
     ]
   },
   {
+    "objectID": "notebooks/serie_temporal.html#descomposición-serie-temporal",
+    "href": "notebooks/serie_temporal.html#descomposición-serie-temporal",
+    "title": "4  Serie temporal",
+    "section": "",
+    "text": "Tendencia: Existe una tendencia cuando se observa que los datos aumentan o decrecen a lo largo del tiempo. Si la serie se mantiene constante concluimos que no tiene tendencia.\nEstacionalidad: Hay un patrón estacional cuando existe una perioricidad en los datos dentro de un período (diario, semanal …).\nResiduo: Representa lo que no se puede explicar por la tendencia ni la estacionalidad, es el ruido impredecible de la serie.",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Serie temporal</span>"
+    ]
+  },
+  {
     "objectID": "notebooks/serie_temporal.html#test-dickey-fuller-aumentada",
     "href": "notebooks/serie_temporal.html#test-dickey-fuller-aumentada",
     "title": "4  Serie temporal",
@@ -130,31 +140,31 @@
     ]
   },
   {
-    "objectID": "notebooks/serie_temporal.html#autocorrelación-y-autocorrelación-parcial",
-    "href": "notebooks/serie_temporal.html#autocorrelación-y-autocorrelación-parcial",
+    "objectID": "notebooks/serie_temporal.html#autocorrelación",
+    "href": "notebooks/serie_temporal.html#autocorrelación",
     "title": "4  Serie temporal",
-    "section": "4.3 Autocorrelación y Autocorrelación Parcial",
-    "text": "4.3 Autocorrelación y Autocorrelación Parcial\nEl análisis de estos gráficos nos va a servir para poder determinar los parámetros p y q de los modelos ARIMA y SARIMA.\n\nfig, ax = plt.subplots(1, 1, figsize=(12, 8))\nplot_acf(serie_temporal, lags=30, ax=ax)   \nplt.show()",
+    "section": "4.3 Autocorrelación",
+    "text": "4.3 Autocorrelación\nLa autocorrelación es una medida estadística que evalúa el grado de dependencia lineal entre los valores de una serie temporal y sus propios valores en momentos anteriores. Es decir, indica en qué medida el valor actual de la serie está relacionado con sus valores pasados. Esta propiedad es especialmente relevante en el análisis de series temporales, ya que permite identificar patrones repetitivos, como estacionalidad o ciclos, y es fundamental para la selección de modelos predictivos como ARIMA o SARIMA\n\nfig, ax = plt.subplots(1, 1, figsize=(12, 8))\nplot_acf(serie_temporal, lags=30, ax=ax)   \nplt.show()\n\n\n\n\n\n\n\n\nLa gráfica de autocorrelación muestra picos positivos recurrentes cada siete días, indicando una clara estacionalidad semanal. Estos picos, presentes en los desfases semanales, disminuyen gradualmente en magnitud conforme aumentan los desfases. Este patrón se debe a que los domingos no hay actividad, lo que crea una regularidad periódica evidente.",
     "crumbs": [
       "<span class='chapter-number'>4</span>  <span class='chapter-title'>Serie temporal</span>"
     ]
   },
   {
-    "objectID": "notebooks/serie_temporal.html#arima-vs-sarima",
-    "href": "notebooks/serie_temporal.html#arima-vs-sarima",
+    "objectID": "notebooks/serie_temporal.html#comparativa-de-modelos-arima-y-sarima",
+    "href": "notebooks/serie_temporal.html#comparativa-de-modelos-arima-y-sarima",
     "title": "4  Serie temporal",
-    "section": "4.4 ARIMA vs SARIMA",
-    "text": "4.4 ARIMA vs SARIMA\nDivido la serie temporal en dos para obtener un conjunto de entrenamiento y otro de prueba, y a partir de ahí calcular MAE y RSME de cada modelo.\n\ntrain_tamaño = int(len(serie_temporal) * 0.7)\ntrain, test = serie_temporal.iloc[:train_tamaño], serie_temporal.iloc[train_tamaño:]\n\n\nmodelo_sarima = SARIMAX(train, order=(1, 0, 1), seasonal_order=(1, 1, 1, 7))\nsarima_fit = modelo_sarima.fit(disp=False, method='powell')\nsarima_predicciones = sarima_fit.forecast(steps=len(test))\n\nmodelo_arima = ARIMA(train, order=(1,0,1))  \narima_fit = modelo_arima.fit()\narima_predicciones = arima_fit.forecast(steps=len(test))\n\nmae_arima = mean_absolute_error(test, arima_predicciones)\nrmse_arima = np.sqrt(mean_squared_error(test, arima_predicciones))\n\nmae_sarima = mean_absolute_error(test, sarima_predicciones)\nrmse_sarima = np.sqrt(mean_squared_error(test, sarima_predicciones))\n\nprint(f\"ARIMA - MAE: {mae_arima:.2f}, RMSE: {rmse_arima:.2f}\")\nprint(f\"SARIMA - MAE: {mae_sarima:.2f}, RMSE: {rmse_sarima:.2f}\")\n\n\n---------------------------------------------------------------------------\nNameError                                 Traceback (most recent call last)\nCell In[20], line 5\n      1 train_tamaño = int(len(serie_temporal) * 0.7)\n      2 train, test = serie_temporal.iloc[:train_tamaño], serie_temporal.iloc[train_tamaño:]\n----&gt; 5 modelo_sarima = SARIMA(train, order=(1, 0, 1), seasonal_order=(1, 1, 1, 7))\n      6 sarima_fit = modelo_sarima.fit(disp=False, method='powell')\n      7 sarima_predicciones = sarima_fit.forecast(steps=len(test))\n\nNameError: name 'SARIMA' is not defined",
+    "section": "4.4 Comparativa de modelos ARIMA y SARIMA",
+    "text": "4.4 Comparativa de modelos ARIMA y SARIMA\nLos modelos ARIMA y SARIMA son técnicas usadas para predicciones en series temporales. Ambos modelos identifican y descubren patrones.\nEl modelo ARIMA se usa para series temporales que pueden ser convertidas en estacionarias con diferenciación, capturando componentes autorregresivos y de media móvil. Sin embargo, cuando la serie presenta un comportamiento estacional (patrones que se repiten en el tiempo), el modelo SARIMA es más efectivo, ya que incluye parámetros adicionales para modelar estos ciclos.\nLos parámetros de cada modelo son los siguientes:\n\nARIMA(p, d, q):\n\np=1: Autoregressive (AR). Utiliza un valor pasado (lag) para predecir el actual. El modelo asume que el valor actual depende del anterior.\nd=0: Differencing. No se aplica diferenciación. Se asume que la serie ya es estacionaria (sin tendencia).\nq=1: Moving Average (MA). Utiliza un error pasado (residuo) para ajustar la predicción actual.\n\nSARIMA(p, d, q)(P, D, Q, s)\n\nP=1: Seasonal AR (SAR). El valor actual depende del valor estacional anterior.\nD=1: Seasonal Differencing. Se aplica diferenciación estacional.\nQ=1: Seasonal MA (SMA). Se usa el error de hace un ciclo estacional.\ns=7: Seasonal Period. El patrón estacional se repite cada 7 períodos. Esto indica estacionalidad semanal.\n\n\n\nmodelo_sarima = SARIMAX(serie_temporal, order=(1, 0, 1), seasonal_order=(1, 1, 1, 7))\nmodelo_arima = ARIMA(serie_temporal, order=(1, 0, 1))\narima_fit = modelo_arima.fit().predict()\nsarima_fit = modelo_sarima.fit().predict()\n\nplt.figure(figsize=(12, 6))\nplt.plot(serie_temporal, label='Serie Temporal', color='blue')\nplt.plot(sarima_fit, label='Predicción SARIMA', color='red')\nplt.plot(arima_fit, label='Predicción ARIMA', color='green')\nplt.title('Predicción SARIMA vs ARIMA')\nplt.xlabel('Fecha')\nplt.ylabel('Número de Eventos')\nplt.legend()\nplt.show()\n\n\n\n\n\n\n\n\nSe observa a simple vista que SARIMA se ajusta bastante mejor a la serie temporal, ya que incorpora componentes estacionales que capturan de manera más precisa los patrones repetitivos presentes en los datos.",
     "crumbs": [
       "<span class='chapter-number'>4</span>  <span class='chapter-title'>Serie temporal</span>"
     ]
   },
   {
-    "objectID": "notebooks/serie_temporal.html#visualizacion-sarima",
-    "href": "notebooks/serie_temporal.html#visualizacion-sarima",
+    "objectID": "notebooks/serie_temporal.html#predicción-con-sarima",
+    "href": "notebooks/serie_temporal.html#predicción-con-sarima",
     "title": "4  Serie temporal",
-    "section": "4.5 Visualizacion SARIMA",
-    "text": "4.5 Visualizacion SARIMA\n\nplt.figure(figsize=(12, 6))\nplt.plot(train, label='Entrenamiento', color='blue')\nplt.plot(test, label='Prueba', color='orange')\nplt.plot(sarima_predicciones, label='Forecast', color='red')\nplt.title('Predicción SARIMA')\nplt.xlabel('Fecha')\nplt.ylabel('Número de Eventos')\nplt.legend()\nplt.show()\n\n\n\n\n\n\n\n\n\nmodelo_sarima = SARIMAX(serie_temporal, order=(1, 0, 1), seasonal_order=(1, 0, 1, 7))\nmodelo_arima = ARIMA(serie_temporal, order=(1, 0, 1))\narima_fit = modelo_arima.fit().predict()\nsarima_fit = modelo_sarima.fit().predict()\n\nplt.figure(figsize=(12, 6))\nplt.plot(serie_temporal, label='Serie Temporal', color='blue')\nplt.plot(sarima_fit, label='Predicción SARIMA', color='red')\nplt.plot(arima_fit, label='Predicción ARIMA', color='green')\nplt.title('Predicción SARIMA vs ARIMA')\nplt.xlabel('Fecha')\nplt.ylabel('Número de Eventos')\nplt.legend()\nplt.show()\n\n\n\n\n\n\n\n\n\nmodelo_sarima = SARIMAX(serie_temporal, order=(1, 0, 1), seasonal_order=(1, 1, 1, 7))\nsarima_fit = modelo_sarima.fit()\n\npredicciones_futuras = sarima_fit.forecast(steps=21)\n\npredicciones_futuras = np.maximum(predicciones_futuras, 0)\n\nplt.figure(figsize=(12, 6))\nplt.plot(serie_temporal, label='Serie Temporal', color='blue')\nplt.plot(predicciones_futuras, label='Predicciones Futuras', color='red')\nplt.title('Predicción de Periodos Futuros (SARIMA)')\nplt.xlabel('Fecha')\nplt.ylabel('Número de Eventos') \nplt.legend()\nplt.show()",
+    "section": "4.5 Predicción con SARIMA",
+    "text": "4.5 Predicción con SARIMA\nCon el modelo calculado anteriormente con SARIMA podemos calcular, por ejemplo, los valores para las próximas 3 semanas usando la función forecast(steps=21).\n\nmodelo_sarima = SARIMAX(serie_temporal, order=(1, 0, 1), seasonal_order=(1, 1, 1, 7))\nsarima_fit = modelo_sarima.fit()\n\npredicciones_futuras = sarima_fit.forecast(steps=21)\n\npredicciones_futuras = np.maximum(predicciones_futuras, 0)\n\nplt.figure(figsize=(12, 6))\nplt.plot(serie_temporal, label='Serie Temporal', color='blue')\nplt.plot(predicciones_futuras, label='Predicciones Futuras', color='red')\nplt.title('Predicción de Periodos Futuros (SARIMA)')\nplt.xlabel('Fecha')\nplt.ylabel('Número de Eventos') \nplt.legend()\nplt.show()",
     "crumbs": [
       "<span class='chapter-number'>4</span>  <span class='chapter-title'>Serie temporal</span>"
     ]
@@ -190,13 +200,13 @@
     ]
   },
   {
-    "objectID": "notebooks/clustering.html#optimización-de-número-de-clústers",
-    "href": "notebooks/clustering.html#optimización-de-número-de-clústers",
-    "title": "5  Clustering con PCA y K-Means",
-    "section": "5.4 Optimización de Número de Clústers",
-    "text": "5.4 Optimización de Número de Clústers\n\ndef optimise_k_means(data, max_k):\n    inertias = []\n\n    for k in range(1, max_k):\n        kmeans = KMeans(n_clusters=k)\n        kmeans.fit(data)\n        inertias.append(kmeans.inertia_)\n    plt.subplots(figsize = (10, 5))\n    plt.plot(range(1, max_k), inertias, 'o-')\n    plt.show()\n\n\noptimise_k_means(userdf[['PC1', 'PC2']], 10)",
+    "objectID": "notebooks/clustering.html#método-del-codo",
+    "href": "notebooks/clustering.html#método-del-codo",
+    "title": "5  Clustering",
+    "section": "5.4 Método del codo",
+    "text": "5.4 Método del codo\nEl método del codo (Elbow Method) es una técnica que se usa para determinar el número óptimo de grupos K de forma visual.\n\ndef optimise_k_means(data, max_k):\n    inertias = []\n\n    for k in range(1, max_k):\n        kmeans = KMeans(n_clusters=k)\n        kmeans.fit(data)\n        inertias.append(kmeans.inertia_)\n    plt.subplots(figsize = (10, 5))\n    plt.plot(range(1, max_k), inertias, 'o-')\n    plt.show()\n\n\noptimise_k_means(userdf[['PC1', 'PC2']], 10)\n\n\n\n\n\n\n\n\nComo puede observarse, el punto donde el “codo” empieza a ser menos pronunciado es a partir de K = 3, que será el K que vamos a usar para aplicar el algoritmo K-Mean",
     "crumbs": [
-      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Clustering con PCA y K-Means</span>"
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Clustering</span>"
     ]
   },
   {
@@ -217,6 +227,26 @@
     "text": "5.6 Evaluación del Clustering\n\nprint(\"Contribucion de cada componente:\", pca.explained_variance_ratio_)\n\nContribucion de cada componente: [0.7919951  0.16963676]\n\n\nEl silhouette_score es una medida que nos indica como de bien se han agrupado los datos, teniendo en cuenta la distancia de un punto con los demás puntos de su grupo y la distancia al grupo vecino más cercano.\n\nsilhouette_avg = silhouette_score(userdf[['PC1', 'PC2']], userdf['kmeans_pca'])\nprint(\"Silhouette Score:\", silhouette_avg)\n\nSilhouette Score: 0.7445436921126249\n\n\n\nSilhouette Score: +1. Indica que los clusters estan perfectamente agrupados.\nSilhouette Score: 0. Indica que hay solapamiento y es difícil distinguir entre dos grupos.\nSilhouette Score: -1. Indica que los puntos están más cercanos a otro grupo que al suyo mismo.",
     "crumbs": [
       "<span class='chapter-number'>5</span>  <span class='chapter-title'>Clustering</span>"
+    ]
+  },
+  {
+    "objectID": "notebooks/mineria_de_procesos.html",
+    "href": "notebooks/mineria_de_procesos.html",
+    "title": "6  Mineria de procesos",
+    "section": "",
+    "text": "6.1 Preparar datos\nLa minería de procesos (Process Mining) es una técnica que se aplica en ciencia de datos y análisis de eventos para descubrir, analizar y mejorar procesos de los eventos generados por la aplicación web. Estos registros (event logs) contienen información de las actividades realizadas en un proceso, cuándo ocurrieron y en qué orden. Existen tres tipos principales de minería de procesos:\nEn este análisis se va a seguir un descubrimiento de procesos aplicando el algoritmo Heuristic Miner. Antes de ello, es necesario preparar un conjunto de datos válido para crear un event log.\ndf = df.sort_values(['Usuario', 'Fecha']) \n\ndf['is_login'] = df['Evento'] == 'LOGIN'\n\ndf['session_number'] = df.groupby('Usuario')['is_login'].cumsum()\n\ndf['case_id'] = df['Usuario'].astype(str) + '_sesion_' + df['session_number'].astype(str)\n\ndf = df[df['Usuario'] != '#0 - null']\n\ndf = df[~df['case_id'].str.contains('sesion_0', na=False)]\n\ndf = df[['case_id', 'Evento', 'Fecha']]\n\ndf = df.rename(columns={\n    'Evento': 'concept:name',\n    'Fecha': 'time:timestamp',\n    'case_id': 'case:concept:name'\n})\n\nevent_log = pm4py.format_dataframe(df, \n                                 case_id='case:concept:name',\n                                 activity_key='concept:name',\n                                 timestamp_key='time:timestamp')\nevent_log.tail(5)\n\n\n\n\n\n\n\n\ncase:concept:name\nconcept:name\ntime:timestamp\n@@index\n@@case_index\n\n\n\n\n1997229\nsusana_sesion_99\nCARGAR_DISENO\n2025-02-28 12:39:57+00:00\n1997229\n152446\n\n\n1997230\nsusana_sesion_99\nAÑADIR_PIEZA\n2025-02-28 12:41:23+00:00\n1997230\n152446\n\n\n1997231\nsusana_sesion_99\nDESCONEXION\n2025-02-28 13:42:37+00:00\n1997231\n152446\n\n\n1997232\nsusana_sesion_99\nLOGOUT\n2025-02-28 13:42:37+00:00\n1997232\n152446\n\n\n1997233\nsusana_sesion_99\nDURACION\n2025-02-28 13:42:37+00:00\n1997233\n152446",
+    "crumbs": [
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Mineria de procesos</span>"
+    ]
+  },
+  {
+    "objectID": "notebooks/mineria_de_procesos.html#algoritmo-heuristic-miner",
+    "href": "notebooks/mineria_de_procesos.html#algoritmo-heuristic-miner",
+    "title": "6  Mineria de procesos",
+    "section": "6.2 Algoritmo Heuristic Miner",
+    "text": "6.2 Algoritmo Heuristic Miner\nEl Heuristic Miner es un algoritmo diseñado para descubrir modelos de procesos a partir de registros reales de eventos. Se basa en frecuencias y dependencias entre actividades observadas, lo que lo hace más robusto frente al ruido. Usa reglas heurísticas para construir un modelo que refleje la conducta predominante.\nEl Flexible Heuristic Miner es una mejora propuesta por Medeiros, Weijters y van der Aalst. Fue diseñada para eliminar algunas limitaciones del algoritmo anterior, y nos permite ajustar parámetros como la dependencia mínima entre actividades, la detección de estructuras paralelas y la sensibilidad ante bucles.\n\ndependency_threshod=0.7: Umbral mínimo para aceptar una relación de dependencia entre dos actividades. Cuanto más alto, más estricta es la conexión.\nand_threshold=0.7: Nivel mínimo de confianza para detectar divisiones de tipo AND (actividades concurrente).\nloop_two_threshold=0.3: Controla la detección de bucles simples entres dos eventos, un valor más bajo permite más bucles.\n\n\nmapa = pm4py.discover_heuristics_net(event_log,dependency_threshold = 0.7, and_threshold = 0.7, loop_two_threshold = 0.3)\npm4py.view_heuristics_net(mapa) \n\n\n\n\n\n\n\n\n\nG = nx.DiGraph([\n    (src, tgt, {'weight': freq})\n    for src, targets in mapa.dfg_matrix.items()\n    for tgt, freq in targets.items()\n])\nprint(\"Nodos con mayor grado de entrada:\")\ndf_in = pd.DataFrame(G.in_degree, columns=[\"Actividad\", \"GradoEntrada\"])\ndf_in = df_in.sort_values(by=\"GradoEntrada\", ascending=False, ignore_index=True)\ndf_in.head(10)\n\nNodos con mayor grado de entrada:\n\n\n\n\n\n\n\n\n\nActividad\nGradoEntrada\n\n\n\n\n0\nDESCONEXION\n15\n\n\n1\nLOGOUT\n13\n\n\n2\nAÑADIR_PIEZA\n11\n\n\n3\nCARGAR_DISENO\n10\n\n\n4\nACEPTAR_PRIVACIDAD\n8\n\n\n5\nCONEXION\n8\n\n\n6\nDURACION\n8\n\n\n7\nVER_PRESUPUESTO\n7\n\n\n8\nCREAR_DISENO\n6\n\n\n9\nNUEVO_LOGO\n6\n\n\n\n\n\n\n\n\nprint(\"Nodos con mayor grado de salida:\")\ndf_out = pd.DataFrame(G.out_degree, columns=[\"Actividad\", \"GradoSalida\"])\ndf_out = df_out.sort_values(by=\"GradoSalida\", ascending=False, ignore_index=True)\ndf_out.head(10)\n\nNodos con mayor grado de salida:\n\n\n\n\n\n\n\n\n\nActividad\nGradoSalida\n\n\n\n\n0\nGEN_PRESUPUESTO\n10\n\n\n1\nVER_PRESUPUESTO\n10\n\n\n2\nAÑADIR_PIEZA\n10\n\n\n3\nCREAR_DISENO\n9\n\n\n4\nLOGIN\n8\n\n\n5\nCONEXION\n8\n\n\n6\nDESCONEXION\n8\n\n\n7\nCARGAR_DISENO\n8\n\n\n8\nGEN_PEDIDO\n7\n\n\n9\nACEPTAR_PRIVACIDAD\n6\n\n\n\n\n\n\n\n\n# DataFrame de transiciones\ndf_edges = pd.DataFrame(\n    [(u, v, d['weight']) for u, v, d in G.edges(data=True)],\n    columns=[\"Origen\", \"Destino\", \"Frecuencia\"]\n)\n\ndf_edges.sort_values(\"Frecuencia\", ascending=False, ignore_index=True).head(10)\n\n\n\n\n\n\n\n\nOrigen\nDestino\nFrecuencia\n\n\n\n\n0\nAÑADIR_PIEZA\nAÑADIR_PIEZA\n719181\n\n\n1\nCONEXION\nCONEXION\n171809\n\n\n2\nLOGOUT\nDURACION\n81491\n\n\n3\nCARGAR_DISENO\nAÑADIR_PIEZA\n76651\n\n\n4\nDURACION\nDESCONEXION\n72983\n\n\n5\nLOGIN\nCARGAR_DISENO\n65817\n\n\n6\nDESCONEXION\nCONEXION\n52677\n\n\n7\nCONEXION\nDESCONEXION\n52490\n\n\n8\nDESCONEXION\nDESCONEXION\n45282\n\n\n9\nLOGIN\nAÑADIR_PIEZA\n39293\n\n\n\n\n\n\n\n\ndf_edges[df_edges[\"Origen\"] != df_edges[\"Destino\"]].sort_values(\"Frecuencia\", ascending=False, ignore_index=True).head(10)\n\n\n\n\n\n\n\n\nOrigen\nDestino\nFrecuencia\n\n\n\n\n0\nLOGOUT\nDURACION\n81491\n\n\n1\nCARGAR_DISENO\nAÑADIR_PIEZA\n76651\n\n\n2\nDURACION\nDESCONEXION\n72983\n\n\n3\nLOGIN\nCARGAR_DISENO\n65817\n\n\n4\nDESCONEXION\nCONEXION\n52677\n\n\n5\nCONEXION\nDESCONEXION\n52490\n\n\n6\nLOGIN\nAÑADIR_PIEZA\n39293\n\n\n7\nDESCONEXION\nLOGOUT\n36984\n\n\n8\nDURACION\nLOGOUT\n32433\n\n\n9\nAÑADIR_PIEZA\nVER_PRESUPUESTO\n30972\n\n\n\n\n\n\n\n\ndf_edges[df_edges[\"Origen\"] == df_edges[\"Destino\"]].sort_values(\"Frecuencia\", ascending=False, ignore_index=True).head(10)\n\n\n\n\n\n\n\n\nOrigen\nDestino\nFrecuencia\n\n\n\n\n0\nAÑADIR_PIEZA\nAÑADIR_PIEZA\n719181\n\n\n1\nCONEXION\nCONEXION\n171809\n\n\n2\nDESCONEXION\nDESCONEXION\n45282\n\n\n3\nCARGAR_DISENO\nCARGAR_DISENO\n28693\n\n\n4\nVER_PRESUPUESTO\nVER_PRESUPUESTO\n8444\n\n\n5\nGEN_PRESUPUESTO\nGEN_PRESUPUESTO\n3122\n\n\n6\nBORRAR_DISEÑO\nBORRAR_DISEÑO\n2165\n\n\n7\nSOLICITUD_RESET\nSOLICITUD_RESET\n288\n\n\n8\nGEN_PEDIDO\nGEN_PEDIDO\n196\n\n\n9\nERROR_SISTEMA\nERROR_SISTEMA\n104\n\n\n\n\n\n\n\n\nlongitud_casos = df.groupby('case:concept:name').size().reset_index(name='NumEventos')\nlongitud_media = longitud_casos['NumEventos'].mean()\nlongitud_media\n\n13.101169586807218\n\n\n\ncaminos = list(nx.all_simple_paths(G, source='LOGIN', target='DESCONEXION'))\n\ndef peso_total(camino):\n    return sum(G[camino[i]][camino[i+1]]['weight'] for i in range(len(camino) - 1))\n\nmejor_camino = max(caminos, key=peso_total)\nprint(\"Camino más pesado (sin ciclos):\", mejor_camino)\n\nCamino más pesado (sin ciclos): ['LOGIN', 'CARGAR_DISENO', 'AÑADIR_PIEZA', 'VER_PRESUPUESTO', 'GEN_PRESUPUESTO', 'CREAR_DISENO', 'LOGOUT', 'DURACION', 'DESCONEXION']",
+    "crumbs": [
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Mineria de procesos</span>"
     ]
   },
   {
@@ -260,66 +290,6 @@
     ]
   },
   {
-    "objectID": "notebooks/reglas_asociacion.html#recomendador-de-fabricantes",
-    "href": "notebooks/reglas_asociacion.html#recomendador-de-fabricantes",
-    "title": "6  Reglas de Asociación",
-    "section": "6.5 Recomendador de fabricantes",
-    "text": "6.5 Recomendador de fabricantes\n\ndef recomendar_fabricante(fabricante_usuario, reglas, top_n=5):\n    reglas_validas = reglas[reglas['antecedents'].apply(lambda x: any(f in fabricante_usuario for f in x))]\n    reglas_validas = reglas_validas.sort_values(['confidence', 'lift'], ascending=False)\n    fabricante_recomendadas = []\n    for consequents in reglas_validas['consequents']:\n        for fabricante in consequents:\n            if fabricante not in fabricante_usuario and fabricante not in fabricante_recomendadas:\n                fabricante_recomendadas.append(fabricante)\n                if len(fabricante_recomendadas) &gt;= top_n:\n                    return fabricante_recomendadas\n    return fabricante_recomendadas\n\n\nfabricantes = {'LANMOBEL'}\nrecomendaciones = recomendar_fabricante(fabricantes, reglas, top_n=5)\n\nprint(\"Fabricantes recomendados:\", recomendaciones)\n\nFabricantes recomendados: ['MONTES', 'GRUPO EXOJO', 'KIARE', 'RAMIS', 'SALCEDO MUEBLE']",
-    "crumbs": [
-      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Reglas de Asociación</span>"
-    ]
-  },
-  {
-    "objectID": "notebooks/mineria_de_procesos.html",
-    "href": "notebooks/mineria_de_procesos.html",
-    "title": "7  Mineria de procesos",
-    "section": "",
-    "text": "7.1 Preparar datos\nLa minería de procesos (Process Mining) es una técnica que se aplica en ciencia de datos y análisis de eventos para descubrir, analizar y mejorar procesos de los eventos generados por la aplicación web. Estos registros (event logs) contienen información de las actividades realizadas en un proceso, cuándo ocurrieron y en qué orden. Existen tres tipos principales de minería de procesos:\nEn este análisis se va a seguir un descubrimiento de procesos aplicando el algoritmo Heuristic Miner. Antes de ello, es necesario preparar un conjunto de datos válido para crear un event log.\ndf = df.sort_values(['Usuario', 'Fecha']) \n\ndf['is_login'] = df['Evento'] == 'LOGIN'\n\ndf['session_number'] = df.groupby('Usuario')['is_login'].cumsum()\n\ndf['case_id'] = df['Usuario'].astype(str) + '_sesion_' + df['session_number'].astype(str)\n\ndf = df[df['Usuario'] != '#0 - null']\n\ndf = df[~df['case_id'].str.contains('sesion_0', na=False)]\n\ndf = df[['case_id', 'Evento', 'Fecha']]\n\ndf = df.rename(columns={\n    'Evento': 'concept:name',\n    'Fecha': 'time:timestamp',\n    'case_id': 'case:concept:name'\n})\n\nevent_log = pm4py.format_dataframe(df, \n                                 case_id='case:concept:name',\n                                 activity_key='concept:name',\n                                 timestamp_key='time:timestamp')\nevent_log.tail(5)\n\n\n\n\n\n\n\n\ncase:concept:name\nconcept:name\ntime:timestamp\n@@index\n@@case_index\n\n\n\n\n1997229\nsusana_sesion_99\nCARGAR_DISENO\n2025-02-28 12:39:57+00:00\n1997229\n152446\n\n\n1997230\nsusana_sesion_99\nAÑADIR_PIEZA\n2025-02-28 12:41:23+00:00\n1997230\n152446\n\n\n1997231\nsusana_sesion_99\nDESCONEXION\n2025-02-28 13:42:37+00:00\n1997231\n152446\n\n\n1997232\nsusana_sesion_99\nLOGOUT\n2025-02-28 13:42:37+00:00\n1997232\n152446\n\n\n1997233\nsusana_sesion_99\nDURACION\n2025-02-28 13:42:37+00:00\n1997233\n152446",
-    "crumbs": [
-      "<span class='chapter-number'>7</span>  <span class='chapter-title'>Mineria de procesos</span>"
-    ]
-  },
-  {
-    "objectID": "notebooks/serie_temporal.html#descomposición-serie-temporal",
-    "href": "notebooks/serie_temporal.html#descomposición-serie-temporal",
-    "title": "4  Serie temporal",
-    "section": "",
-    "text": "Tendencia: Existe una tendencia cuando se observa que los datos aumentan o decrecen a lo largo del tiempo. Si la serie se mantiene constante concluimos que no tiene tendencia.\nEstacionalidad: Hay un patrón estacional cuando existe una perioricidad en los datos dentro de un período (diario, semanal …).\nResiduo: Representa lo que no se puede explicar por la tendencia ni la estacionalidad, es el ruido impredecible de la serie.",
-    "crumbs": [
-      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Serie temporal</span>"
-    ]
-  },
-  {
-    "objectID": "notebooks/serie_temporal.html#autocorrelación",
-    "href": "notebooks/serie_temporal.html#autocorrelación",
-    "title": "4  Serie temporal",
-    "section": "4.3 Autocorrelación",
-    "text": "4.3 Autocorrelación\nLa autocorrelación es una medida estadística que evalúa el grado de dependencia lineal entre los valores de una serie temporal y sus propios valores en momentos anteriores. Es decir, indica en qué medida el valor actual de la serie está relacionado con sus valores pasados. Esta propiedad es especialmente relevante en el análisis de series temporales, ya que permite identificar patrones repetitivos, como estacionalidad o ciclos, y es fundamental para la selección de modelos predictivos como ARIMA o SARIMA\n\nfig, ax = plt.subplots(1, 1, figsize=(12, 8))\nplot_acf(serie_temporal, lags=30, ax=ax)   \nplt.show()\n\n\n\n\n\n\n\n\nLa gráfica de autocorrelación muestra picos positivos recurrentes cada siete días, indicando una clara estacionalidad semanal. Estos picos, presentes en los desfases semanales, disminuyen gradualmente en magnitud conforme aumentan los desfases. Este patrón se debe a que los domingos no hay actividad, lo que crea una regularidad periódica evidente.",
-    "crumbs": [
-      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Serie temporal</span>"
-    ]
-  },
-  {
-    "objectID": "notebooks/serie_temporal.html#comparativa-de-modelos-arima-y-sarima",
-    "href": "notebooks/serie_temporal.html#comparativa-de-modelos-arima-y-sarima",
-    "title": "4  Serie temporal",
-    "section": "4.4 Comparativa de modelos ARIMA y SARIMA",
-    "text": "4.4 Comparativa de modelos ARIMA y SARIMA\nLos modelos ARIMA y SARIMA son técnicas usadas para predicciones en series temporales. Ambos modelos identifican y descubren patrones.\nEl modelo ARIMA se usa para series temporales que pueden ser convertidas en estacionarias con diferenciación, capturando componentes autorregresivos y de media móvil. Sin embargo, cuando la serie presenta un comportamiento estacional (patrones que se repiten en el tiempo), el modelo SARIMA es más efectivo, ya que incluye parámetros adicionales para modelar estos ciclos.\nLos parámetros de cada modelo son los siguientes:\n\nARIMA(p, d, q):\n\np=1: Autoregressive (AR). Utiliza un valor pasado (lag) para predecir el actual. El modelo asume que el valor actual depende del anterior.\nd=0: Differencing. No se aplica diferenciación. Se asume que la serie ya es estacionaria (sin tendencia).\nq=1: Moving Average (MA). Utiliza un error pasado (residuo) para ajustar la predicción actual.\n\nSARIMA(p, d, q)(P, D, Q, s)\n\nP=1: Seasonal AR (SAR). El valor actual depende del valor estacional anterior.\nD=1: Seasonal Differencing. Se aplica diferenciación estacional.\nQ=1: Seasonal MA (SMA). Se usa el error de hace un ciclo estacional.\ns=7: Seasonal Period. El patrón estacional se repite cada 7 períodos. Esto indica estacionalidad semanal.\n\n\n\nmodelo_sarima = SARIMAX(serie_temporal, order=(1, 0, 1), seasonal_order=(1, 1, 1, 7))\nmodelo_arima = ARIMA(serie_temporal, order=(1, 0, 1))\narima_fit = modelo_arima.fit().predict()\nsarima_fit = modelo_sarima.fit().predict()\n\nplt.figure(figsize=(12, 6))\nplt.plot(serie_temporal, label='Serie Temporal', color='blue')\nplt.plot(sarima_fit, label='Predicción SARIMA', color='red')\nplt.plot(arima_fit, label='Predicción ARIMA', color='green')\nplt.title('Predicción SARIMA vs ARIMA')\nplt.xlabel('Fecha')\nplt.ylabel('Número de Eventos')\nplt.legend()\nplt.show()\n\n\n\n\n\n\n\n\nSe observa a simple vista que SARIMA se ajusta bastante mejor a la serie temporal, ya que incorpora componentes estacionales que capturan de manera más precisa los patrones repetitivos presentes en los datos.",
-    "crumbs": [
-      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Serie temporal</span>"
-    ]
-  },
-  {
-    "objectID": "notebooks/serie_temporal.html#predicción-con-sarima",
-    "href": "notebooks/serie_temporal.html#predicción-con-sarima",
-    "title": "4  Serie temporal",
-    "section": "4.5 Predicción con SARIMA",
-    "text": "4.5 Predicción con SARIMA\nCon el modelo calculado anteriormente con SARIMA podemos calcular, por ejemplo, los valores para las próximas 3 semanas usando la función forecast(steps=21).\n\nmodelo_sarima = SARIMAX(serie_temporal, order=(1, 0, 1), seasonal_order=(1, 1, 1, 7))\nsarima_fit = modelo_sarima.fit()\n\npredicciones_futuras = sarima_fit.forecast(steps=21)\n\npredicciones_futuras = np.maximum(predicciones_futuras, 0)\n\nplt.figure(figsize=(12, 6))\nplt.plot(serie_temporal, label='Serie Temporal', color='blue')\nplt.plot(predicciones_futuras, label='Predicciones Futuras', color='red')\nplt.title('Predicción de Periodos Futuros (SARIMA)')\nplt.xlabel('Fecha')\nplt.ylabel('Número de Eventos') \nplt.legend()\nplt.show()",
-    "crumbs": [
-      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Serie temporal</span>"
-    ]
-  },
-  {
     "objectID": "notebooks/reglas_asociacion.html#recomendador-de-piezas",
     "href": "notebooks/reglas_asociacion.html#recomendador-de-piezas",
     "title": "7  Reglas de Asociación",
@@ -327,26 +297,6 @@
     "text": "7.5 Recomendador de piezas\nSe ha implementado un algoritmo recomendador de piezas del catálogo estándar basado en las reglas de asociación. El algoritmo acepta una lista de una o más piezas y, en función de esas piezas, devuelve las N piezas más relevantes.\n\ndef recomendar_pieza(piezas_usuario, reglas, top_n=5):\n    reglas_validas = reglas[reglas['antecedents'].apply(lambda x: piezas_usuario.issubset(x))]\n    reglas_validas = reglas_validas.sort_values(['confidence', 'lift'], ascending=False)\n    piezas_recomendadas = []\n    for consequents in reglas_validas['consequents']:\n        for pieza in consequents:\n            if pieza not in piezas_usuario and pieza not in piezas_recomendadas:\n                piezas_recomendadas.append(pieza)\n                if len(piezas_recomendadas) &gt;= top_n:\n                    return piezas_recomendadas\n    return piezas_recomendadas\n\n\npiezas_usuario = {'ED-LIB-12', 'ED-TVT-01'}\nrecomendaciones = recomendar_pieza(piezas_usuario, reglas, top_n=5)\nprint(\"Piezas recomendadas:\", recomendaciones)\n\nPiezas recomendadas: ['ED-JAR-32', 'SOF-022', 'ED-ALF-03', 'ED-LPR-01', 'ED-BAN-01']",
     "crumbs": [
       "<span class='chapter-number'>7</span>  <span class='chapter-title'>Reglas de Asociación</span>"
-    ]
-  },
-  {
-    "objectID": "notebooks/clustering.html#método-del-codo",
-    "href": "notebooks/clustering.html#método-del-codo",
-    "title": "5  Clustering",
-    "section": "5.4 Método del codo",
-    "text": "5.4 Método del codo\nEl método del codo (Elbow Method) es una técnica que se usa para determinar el número óptimo de grupos K de forma visual.\n\ndef optimise_k_means(data, max_k):\n    inertias = []\n\n    for k in range(1, max_k):\n        kmeans = KMeans(n_clusters=k)\n        kmeans.fit(data)\n        inertias.append(kmeans.inertia_)\n    plt.subplots(figsize = (10, 5))\n    plt.plot(range(1, max_k), inertias, 'o-')\n    plt.show()\n\n\noptimise_k_means(userdf[['PC1', 'PC2']], 10)\n\n\n\n\n\n\n\n\nComo puede observarse, el punto donde el “codo” empieza a ser menos pronunciado es a partir de K = 3, que será el K que vamos a usar para aplicar el algoritmo K-Mean",
-    "crumbs": [
-      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Clustering</span>"
-    ]
-  },
-  {
-    "objectID": "notebooks/mineria_de_procesos.html#algoritmo-heuristic-miner",
-    "href": "notebooks/mineria_de_procesos.html#algoritmo-heuristic-miner",
-    "title": "7  Mineria de procesos",
-    "section": "7.2 Algoritmo Heuristic Miner",
-    "text": "7.2 Algoritmo Heuristic Miner\nEl Heuristic Miner es un algoritmo diseñado para descubrir modelos de procesos a partir de registros reales de eventos. Se basa en frecuencias y dependencias entre actividades observadas, lo que lo hace más robusto frente al ruido. Usa reglas heurísticas para construir un modelo que refleje la conducta predominante.\nEl Flexible Heuristic Miner es una mejora propuesta por Medeiros, Weijters y van der Aalst. Fue diseñada para eliminar algunas limitaciones del algoritmo anterior, y nos permite ajustar parámetros como la dependencia mínima entre actividades, la detección de estructuras paralelas y la sensibilidad ante bucles.\n\ndependency_threshod=0.7: Umbral mínimo para aceptar una relación de dependencia entre dos actividades. Cuanto más alto, más estricta es la conexión.\nand_threshold=0.7: Nivel mínimo de confianza para detectar divisiones de tipo AND (actividades concurrente).\nloop_two_threshold=0.3: Controla la detección de bucles simples entres dos eventos, un valor más bajo permite más bucles.\n\n\nmapa = pm4py.discover_heuristics_net(event_log,dependency_threshold = 0.7, and_threshold = 0.7, loop_two_threshold = 0.3)\npm4py.view_heuristics_net(mapa) \n\n\n\n\n\n\n\n\n\nG = nx.DiGraph([\n    (src, tgt, {'weight': freq})\n    for src, targets in mapa.dfg_matrix.items()\n    for tgt, freq in targets.items()\n])\nprint(\"Nodos con mayor grado de entrada:\")\ndf_in = pd.DataFrame(G.in_degree, columns=[\"Actividad\", \"GradoEntrada\"])\ndf_in = df_in.sort_values(by=\"GradoEntrada\", ascending=False, ignore_index=True)\ndf_in.head(10)\n\nNodos con mayor grado de entrada:\n\n\n\n\n\n\n\n\n\nActividad\nGradoEntrada\n\n\n\n\n0\nDESCONEXION\n15\n\n\n1\nLOGOUT\n13\n\n\n2\nAÑADIR_PIEZA\n11\n\n\n3\nCARGAR_DISENO\n10\n\n\n4\nACEPTAR_PRIVACIDAD\n8\n\n\n5\nCONEXION\n8\n\n\n6\nDURACION\n8\n\n\n7\nVER_PRESUPUESTO\n7\n\n\n8\nCREAR_DISENO\n6\n\n\n9\nNUEVO_LOGO\n6\n\n\n\n\n\n\n\n\nprint(\"Nodos con mayor grado de salida:\")\ndf_out = pd.DataFrame(G.out_degree, columns=[\"Actividad\", \"GradoSalida\"])\ndf_out = df_out.sort_values(by=\"GradoSalida\", ascending=False, ignore_index=True)\ndf_out.head(10)\n\nNodos con mayor grado de salida:\n\n\n\n\n\n\n\n\n\nActividad\nGradoSalida\n\n\n\n\n0\nGEN_PRESUPUESTO\n10\n\n\n1\nVER_PRESUPUESTO\n10\n\n\n2\nAÑADIR_PIEZA\n10\n\n\n3\nCREAR_DISENO\n9\n\n\n4\nLOGIN\n8\n\n\n5\nCONEXION\n8\n\n\n6\nDESCONEXION\n8\n\n\n7\nCARGAR_DISENO\n8\n\n\n8\nGEN_PEDIDO\n7\n\n\n9\nACEPTAR_PRIVACIDAD\n6\n\n\n\n\n\n\n\n\n# DataFrame de transiciones\ndf_edges = pd.DataFrame(\n    [(u, v, d['weight']) for u, v, d in G.edges(data=True)],\n    columns=[\"Origen\", \"Destino\", \"Frecuencia\"]\n)\n\ndf_edges.sort_values(\"Frecuencia\", ascending=False, ignore_index=True).head(10)\n\n\n\n\n\n\n\n\nOrigen\nDestino\nFrecuencia\n\n\n\n\n0\nAÑADIR_PIEZA\nAÑADIR_PIEZA\n719181\n\n\n1\nCONEXION\nCONEXION\n171809\n\n\n2\nLOGOUT\nDURACION\n81491\n\n\n3\nCARGAR_DISENO\nAÑADIR_PIEZA\n76651\n\n\n4\nDURACION\nDESCONEXION\n72983\n\n\n5\nLOGIN\nCARGAR_DISENO\n65817\n\n\n6\nDESCONEXION\nCONEXION\n52677\n\n\n7\nCONEXION\nDESCONEXION\n52490\n\n\n8\nDESCONEXION\nDESCONEXION\n45282\n\n\n9\nLOGIN\nAÑADIR_PIEZA\n39293\n\n\n\n\n\n\n\n\ndf_edges[df_edges[\"Origen\"] != df_edges[\"Destino\"]].sort_values(\"Frecuencia\", ascending=False, ignore_index=True).head(10)\n\n\n\n\n\n\n\n\nOrigen\nDestino\nFrecuencia\n\n\n\n\n0\nLOGOUT\nDURACION\n81491\n\n\n1\nCARGAR_DISENO\nAÑADIR_PIEZA\n76651\n\n\n2\nDURACION\nDESCONEXION\n72983\n\n\n3\nLOGIN\nCARGAR_DISENO\n65817\n\n\n4\nDESCONEXION\nCONEXION\n52677\n\n\n5\nCONEXION\nDESCONEXION\n52490\n\n\n6\nLOGIN\nAÑADIR_PIEZA\n39293\n\n\n7\nDESCONEXION\nLOGOUT\n36984\n\n\n8\nDURACION\nLOGOUT\n32433\n\n\n9\nAÑADIR_PIEZA\nVER_PRESUPUESTO\n30972\n\n\n\n\n\n\n\n\ndf_edges[df_edges[\"Origen\"] == df_edges[\"Destino\"]].sort_values(\"Frecuencia\", ascending=False, ignore_index=True).head(10)\n\n\n\n\n\n\n\n\nOrigen\nDestino\nFrecuencia\n\n\n\n\n0\nAÑADIR_PIEZA\nAÑADIR_PIEZA\n719181\n\n\n1\nCONEXION\nCONEXION\n171809\n\n\n2\nDESCONEXION\nDESCONEXION\n45282\n\n\n3\nCARGAR_DISENO\nCARGAR_DISENO\n28693\n\n\n4\nVER_PRESUPUESTO\nVER_PRESUPUESTO\n8444\n\n\n5\nGEN_PRESUPUESTO\nGEN_PRESUPUESTO\n3122\n\n\n6\nBORRAR_DISEÑO\nBORRAR_DISEÑO\n2165\n\n\n7\nSOLICITUD_RESET\nSOLICITUD_RESET\n288\n\n\n8\nGEN_PEDIDO\nGEN_PEDIDO\n196\n\n\n9\nERROR_SISTEMA\nERROR_SISTEMA\n104\n\n\n\n\n\n\n\n\nlongitud_casos = df.groupby('case:concept:name').size().reset_index(name='NumEventos')\nlongitud_media = longitud_casos['NumEventos'].mean()\nlongitud_media\n\n13.101169586807218\n\n\n\ncaminos = list(nx.all_simple_paths(G, source='LOGIN', target='DESCONEXION'))\n\ndef peso_total(camino):\n    return sum(G[camino[i]][camino[i+1]]['weight'] for i in range(len(camino) - 1))\n\nmejor_camino = max(caminos, key=peso_total)\nprint(\"Camino más pesado (sin ciclos):\", mejor_camino)\n\nCamino más pesado (sin ciclos): ['LOGIN', 'CARGAR_DISENO', 'AÑADIR_PIEZA', 'VER_PRESUPUESTO', 'GEN_PRESUPUESTO', 'CREAR_DISENO', 'LOGOUT', 'DURACION', 'DESCONEXION']",
-    "crumbs": [
-      "<span class='chapter-number'>7</span>  <span class='chapter-title'>Mineria de procesos</span>"
     ]
   }
 ]

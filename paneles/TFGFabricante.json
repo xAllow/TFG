@@ -28,6 +28,7 @@
       "fieldConfig": {
         "defaults": {
           "color": {
+            "fixedColor": "text",
             "mode": "shades"
           },
           "mappings": [],
@@ -77,7 +78,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT $__timeGroup(fecha, $interval) as time, count(distinct usuario) as usuarios FROM logs.logs WHERE $__timeFilter(fecha) AND LOWER(fabricante) = LOWER('${__user.login}') GROUP BY time",
+          "rawSql": "SELECT $__timeGroup(fecha, $interval) as time, count(distinct usuario) as usuarios \r\nFROM logs.logs WHERE $__timeFilter(fecha) AND LOWER(fabricante) = LOWER('${__user.login}') and country in ($country) \r\nGROUP BY time",
           "refId": "A",
           "sql": {
             "columns": [
@@ -108,6 +109,7 @@
       "fieldConfig": {
         "defaults": {
           "color": {
+            "fixedColor": "text",
             "mode": "shades"
           },
           "mappings": [],
@@ -157,7 +159,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT count(distinct catalogo) as usuarios \r\nFROM logs.logs WHERE $__timeFilter(fecha) and lower(fabricante) = lower('${__user.login}')\r\n",
+          "rawSql": "SELECT count(distinct catalogo) as usuarios \r\nFROM logs.logs WHERE $__timeFilter(fecha) and lower(fabricante) = lower('${__user.login}') and country in ($country) \r\n",
           "refId": "A",
           "sql": {
             "columns": [
@@ -188,6 +190,7 @@
       "fieldConfig": {
         "defaults": {
           "color": {
+            "fixedColor": "text",
             "mode": "shades"
           },
           "fieldMinMax": false,
@@ -238,7 +241,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT count(*) as eventos FROM logs.logs WHERE $__timeFilter(fecha) and lower(fabricante) = lower('${__user.login}')",
+          "rawSql": "SELECT count(*) as eventos FROM logs.logs WHERE $__timeFilter(fecha) and lower(fabricante) = lower('${__user.login}') and country in ($country) ",
           "refId": "A",
           "sql": {
             "columns": [
@@ -269,6 +272,7 @@
       "fieldConfig": {
         "defaults": {
           "color": {
+            "fixedColor": "text",
             "mode": "shades"
           },
           "mappings": [],
@@ -318,7 +322,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT count(distinct COUNTRY) as usuarios \r\nFROM logs.logs WHERE $__timeFilter(fecha) and lower(fabricante) = lower('${__user.login}')\r\n",
+          "rawSql": "SELECT count(distinct COUNTRY) as usuarios \r\nFROM logs.logs WHERE $__timeFilter(fecha) and lower(fabricante) = lower('${__user.login}') and country in ($country) \r\n",
           "refId": "A",
           "sql": {
             "columns": [
@@ -352,6 +356,434 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": []
+        },
+        "overrides": [
+          {
+            "__systemRef": "hideSeriesFrom",
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "exclude",
+                "names": [
+                  "value",
+                  "Adapt"
+                ],
+                "prefix": "All except:",
+                "readOnly": true
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": true
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 4
+      },
+      "id": 14,
+      "options": {
+        "displayLabels": [
+          "name",
+          "value"
+        ],
+        "legend": {
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.0.0",
+      "targets": [
+        {
+          "dataset": "logs",
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT CATALOGO, COUNT(*) as value FROM logs.logs \r\nWHERE $__timeFilter(FECHA) and country in ($country) AND LOWER(fabricante) = LOWER('${__user.login}')\r\nGROUP BY CATALOGO ORDER BY COUNT(*) DESC\r\nLIMIT 10",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Catálogos Más Escogidos",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "datasource": "__MY_DATASOURCE__"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "continuous-BlPu"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 4
+      },
+      "id": 12,
+      "options": {
+        "displayMode": "gradient",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "fields": "",
+          "limit": 10,
+          "values": true
+        },
+        "showUnfilled": false,
+        "sizing": "auto",
+        "valueMode": "color"
+      },
+      "pluginVersion": "12.0.0",
+      "targets": [
+        {
+          "dataset": "logs",
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT PIEZA, COUNT(*) as value FROM logs.logs \r\nWHERE $__timeFilter(FECHA) and country in ($country) AND EVENTO = 'AÑADIR_PIEZA' AND LOWER(fabricante) = LOWER('${__user.login}')\r\nGROUP BY PIEZA ORDER BY COUNT(*) DESC",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Piezas Más Usadas",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "datasource": "__MY_DATASOURCE__"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "continuous-BlPu"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 14
+      },
+      "id": 18,
+      "options": {
+        "displayMode": "gradient",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "maxVizHeight": 300,
+        "minVizHeight": 8,
+        "minVizWidth": 8,
+        "namePlacement": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "fields": "",
+          "limit": 10,
+          "values": true
+        },
+        "showUnfilled": false,
+        "sizing": "auto",
+        "valueMode": "color"
+      },
+      "pluginVersion": "12.0.0",
+      "targets": [
+        {
+          "dataset": "logs",
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT usuario, COUNT(*) as value FROM logs.logs \r\nWHERE $__timeFilter(FECHA) and country in ($country) AND usuario != 'null'  AND LOWER(fabricante) = LOWER('${__user.login}')\r\nGROUP BY usuario ORDER BY COUNT(*) DESC",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Ranking de usuarios",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "datasource": "__MY_DATASOURCE__"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 100,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 2,
+            "pointSize": 4,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "always",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "fieldMinMax": false,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 14
+      },
+      "id": 16,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.0.0",
+      "targets": [
+        {
+          "dataset": "logs",
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH piezas AS (\r\n  SELECT pieza\r\n  FROM logs.logs\r\n  WHERE $__timeFilter(fecha)\r\n    AND pieza IS NOT NULL\r\n    AND country IN ($country)\r\n    AND LOWER(fabricante) = LOWER('${__user.login}')\r\n  GROUP BY pieza\r\n  ORDER BY COUNT(*) DESC\r\n  LIMIT 5\r\n),\r\ndatos_agrupados AS (\r\n  SELECT\r\n    $__timeGroup(l.fecha, '$interval') AS time,\r\n    l.pieza,\r\n    COUNT(*) as total_diario\r\n  FROM logs.logs l\r\n  JOIN piezas tp ON l.pieza = tp.pieza\r\n  WHERE $__timeFilter(l.fecha) AND country IN ($country)\r\n    AND LOWER(fabricante) = LOWER('${__user.login}')\r\n  GROUP BY time, l.pieza\r\n)\r\nSELECT\r\n  time,\r\n  pieza,\r\n  total_diario,\r\n  SUM(total_diario) OVER (PARTITION BY pieza ORDER BY time) AS Total\r\nFROM datos_agrupados\r\nORDER BY pieza, time;",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Acumulado de Piezas Histórico",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "total_acumulado": false,
+              "total_diario": true
+            },
+            "includeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "pieza": "",
+              "total_acumulado": "",
+              "total_diario": ""
+            }
+          }
+        },
+        {
+          "id": "prepareTimeSeries",
+          "options": {
+            "format": "multi"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "Total (.*)",
+            "renamePattern": "$1"
+          }
+        }
+      ],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "datasource": "__MY_DATASOURCE__"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
             "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
@@ -372,7 +804,7 @@
             "lineStyle": {
               "fill": "solid"
             },
-            "lineWidth": 1,
+            "lineWidth": 3,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
@@ -407,7 +839,7 @@
         "h": 13,
         "w": 24,
         "x": 0,
-        "y": 4
+        "y": 24
       },
       "id": 1,
       "options": {
@@ -456,7 +888,7 @@
           "table": "logs"
         }
       ],
-      "title": "Serie temporal",
+      "title": "Uso de los catálogos",
       "transformations": [
         {
           "id": "prepareTimeSeries",
@@ -473,80 +905,58 @@
       },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
           "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 100,
-            "gradientMode": "opacity",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
             },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 1,
-            "pointSize": 4,
             "scaleDistribution": {
               "type": "linear"
-            },
-            "showPoints": "always",
-            "spanNulls": true,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
             }
-          },
-          "fieldMinMax": false,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
           }
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
+        "h": 10,
         "w": 24,
         "x": 0,
-        "y": 17
+        "y": 37
       },
-      "id": 16,
+      "id": 5,
       "options": {
+        "calculate": false,
+        "cellGap": 1,
+        "color": {
+          "exponent": 0.5,
+          "fill": "dark-orange",
+          "mode": "scheme",
+          "reverse": false,
+          "scale": "exponential",
+          "scheme": "Magma",
+          "steps": 64
+        },
+        "exemplars": {
+          "color": "rgba(255,0,255,0.7)"
+        },
+        "filterValues": {
+          "le": 1e-9
+        },
         "legend": {
-          "calcs": [],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true
+          "show": true
+        },
+        "rowsFrame": {
+          "layout": "auto"
         },
         "tooltip": {
-          "hideZeros": false,
           "mode": "single",
-          "sort": "none"
+          "showColorScale": false,
+          "yHistogram": false
+        },
+        "yAxis": {
+          "axisPlacement": "left",
+          "reverse": false
         }
       },
       "pluginVersion": "12.0.0",
@@ -556,7 +966,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH piezas AS (\r\n  SELECT pieza\r\n  FROM logs.logs\r\n  WHERE $__timeFilter(fecha)\r\n    AND pieza IS NOT NULL\r\n    AND country IN ($country)\r\n    AND LOWER(fabricante) = LOWER('${__user.login}')\r\n  GROUP BY pieza\r\n  ORDER BY COUNT(*) DESC\r\n  LIMIT 5\r\n),\r\ndatos_agrupados AS (\r\n  SELECT\r\n    $__timeGroup(l.fecha, '$interval') AS time,\r\n    l.pieza,\r\n    COUNT(*) as total_diario\r\n  FROM logs.logs l\r\n  JOIN piezas tp ON l.pieza = tp.pieza\r\n  WHERE $__timeFilter(l.fecha) AND country IN ($country)\r\n    AND LOWER(fabricante) = LOWER('${__user.login}')\r\n  GROUP BY time, l.pieza\r\n)\r\nSELECT\r\n  time,\r\n  pieza,\r\n  total_diario,\r\n  SUM(total_diario) OVER (PARTITION BY pieza ORDER BY time) AS acumulado\r\nFROM datos_agrupados\r\nORDER BY pieza, time;",
+          "rawSql": "SELECT\r\n  NombreDia,\r\n  Hora,\r\n  COUNT(*) \r\nFROM logs\r\nWHERE $__timeFilter(Fecha) and lower(fabricante) = lower('${__user.login}') and country in ($country) \r\nGROUP BY NombreDia, hora\r\nORDER BY hora , FIELD(NombreDia, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')",
           "refId": "A",
           "sql": {
             "columns": [
@@ -577,32 +987,130 @@
           }
         }
       ],
-      "title": "Acumulado Histórico",
+      "title": "Actividad por día de la semana y hora",
       "transformations": [
         {
-          "id": "organize",
+          "id": "groupingToMatrix",
           "options": {
-            "excludeByName": {
-              "total_acumulado": false,
-              "total_diario": true
-            },
-            "includeByName": {},
-            "indexByName": {},
-            "renameByName": {
-              "pieza": "",
-              "total_acumulado": "",
-              "total_diario": ""
-            }
-          }
-        },
-        {
-          "id": "prepareTimeSeries",
-          "options": {
-            "format": "multi"
+            "columnField": "NombreDia",
+            "rowField": "Hora",
+            "valueField": "COUNT(*)"
           }
         }
       ],
-      "type": "timeseries"
+      "type": "heatmap"
+    },
+    {
+      "datasource": {
+        "datasource": "__MY_DATASOURCE__"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "#11f200",
+            "mode": "continuous-GrYlRd"
+          },
+          "fieldMinMax": false,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 47
+      },
+      "id": 20,
+      "options": {
+        "displayMode": "basic",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [],
+          "fields": "",
+          "values": true
+        },
+        "showUnfilled": false,
+        "sizing": "auto",
+        "valueMode": "color"
+      },
+      "pluginVersion": "12.0.0",
+      "targets": [
+        {
+          "dataset": "logs",
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COUNT(region), region FROM logs.logs \r\nwhere  lower(fabricante) = lower('${__user.login}') and country in ($country) and $__timeFilter(Fecha)\r\nGROUP BY region ORDER BY COUNT(region) DESC LIMIT 10 ",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "name": "COUNT",
+                "parameters": [
+                  {
+                    "name": "region",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              },
+              {
+                "parameters": [
+                  {
+                    "name": "region",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "name": "region",
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 10,
+            "orderBy": {
+              "property": {
+                "name": "COUNT(region)",
+                "type": "string"
+              },
+              "type": "property"
+            },
+            "orderByDirection": "DESC"
+          },
+          "table": "logs"
+        }
+      ],
+      "title": "Regiones Más Activas",
+      "type": "bargauge"
     },
     {
       "datasource": {
@@ -640,7 +1148,7 @@
         "h": 16,
         "w": 24,
         "x": 0,
-        "y": 24
+        "y": 57
       },
       "id": 3,
       "options": {
@@ -703,7 +1211,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\r\n    logs.lat AS latitude,                             \r\n    logs.lng AS longitude,                           \r\n    COUNT(DISTINCT logs.Usuario) AS unique_users     \r\nFROM logs.logs\r\nWHERE $__timeFilter(logs.Fecha) AND LOWER(fabricante) = LOWER('${__user.login}')                  \r\nGROUP BY logs.lat, logs.lng    \r\nORDER BY unique_users DESC                             \r\n",
+          "rawSql": "SELECT\r\n    logs.lat AS latitude,                             \r\n    logs.lng AS longitude,                           \r\n    COUNT(DISTINCT logs.Usuario) AS unique_users     \r\nFROM logs.logs\r\nWHERE $__timeFilter(logs.Fecha) AND LOWER(fabricante) = LOWER('${__user.login}') and country in ($country)                 \r\nGROUP BY logs.lat, logs.lng    \r\nORDER BY unique_users DESC                             \r\n",
           "refId": "A",
           "sql": {
             "columns": [
@@ -809,368 +1317,9 @@
       ],
       "title": "Mapa",
       "type": "geomap"
-    },
-    {
-      "datasource": {
-        "datasource": "__MY_DATASOURCE__"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "scaleDistribution": {
-              "type": "linear"
-            }
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 9,
-        "w": 24,
-        "x": 0,
-        "y": 40
-      },
-      "id": 5,
-      "options": {
-        "calculate": false,
-        "cellGap": 1,
-        "color": {
-          "exponent": 0.5,
-          "fill": "dark-orange",
-          "mode": "scheme",
-          "reverse": true,
-          "scale": "exponential",
-          "scheme": "Magma",
-          "steps": 64
-        },
-        "exemplars": {
-          "color": "rgba(255,0,255,0.7)"
-        },
-        "filterValues": {
-          "le": 1e-9
-        },
-        "legend": {
-          "show": true
-        },
-        "rowsFrame": {
-          "layout": "auto"
-        },
-        "tooltip": {
-          "mode": "single",
-          "showColorScale": false,
-          "yHistogram": false
-        },
-        "yAxis": {
-          "axisPlacement": "left",
-          "reverse": false
-        }
-      },
-      "pluginVersion": "12.0.0",
-      "targets": [
-        {
-          "dataset": "logs",
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT\r\n  NombreDia,\r\n  Hora,\r\n  COUNT(*) \r\nFROM logs\r\nWHERE $__timeFilter(Fecha) and lower(fabricante) = lower('${__user.login}')\r\nGROUP BY NombreDia, hora\r\nORDER BY hora , FIELD(NombreDia, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        }
-      ],
-      "title": "Actividad por día de la semana y hora",
-      "transformations": [
-        {
-          "id": "groupingToMatrix",
-          "options": {
-            "columnField": "NombreDia",
-            "rowField": "Hora",
-            "valueField": "COUNT(*)"
-          }
-        }
-      ],
-      "type": "heatmap"
-    },
-    {
-      "datasource": {
-        "datasource": "__MY_DATASOURCE__"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            }
-          },
-          "mappings": []
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 10,
-        "w": 12,
-        "x": 0,
-        "y": 49
-      },
-      "id": 14,
-      "options": {
-        "displayLabels": [
-          "name",
-          "value"
-        ],
-        "legend": {
-          "displayMode": "list",
-          "placement": "right",
-          "showLegend": true
-        },
-        "pieType": "pie",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "12.0.0",
-      "targets": [
-        {
-          "dataset": "logs",
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT CATALOGO, COUNT(*) as value FROM logs.logs \r\nWHERE $__timeFilter(FECHA) and country in ($country) AND LOWER(fabricante) = LOWER('${__user.login}')\r\nGROUP BY CATALOGO ORDER BY COUNT(*) DESC\r\nLIMIT 10",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        }
-      ],
-      "title": "Catálogos Más Escogidos",
-      "type": "piechart"
-    },
-    {
-      "datasource": {
-        "datasource": "__MY_DATASOURCE__"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "continuous-YlBl"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 10,
-        "w": 12,
-        "x": 12,
-        "y": 49
-      },
-      "id": 12,
-      "options": {
-        "displayMode": "gradient",
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": false
-        },
-        "maxVizHeight": 300,
-        "minVizHeight": 16,
-        "minVizWidth": 8,
-        "namePlacement": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
-          "fields": "",
-          "limit": 10,
-          "values": true
-        },
-        "showUnfilled": true,
-        "sizing": "auto",
-        "valueMode": "color"
-      },
-      "pluginVersion": "12.0.0",
-      "targets": [
-        {
-          "dataset": "logs",
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT PIEZA, COUNT(*) as value FROM logs.logs \r\nWHERE $__timeFilter(FECHA) and country in ($country) AND EVENTO = 'AÑADIR_PIEZA' AND LOWER(fabricante) = LOWER('${__user.login}')\r\nGROUP BY PIEZA ORDER BY COUNT(*) DESC",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        }
-      ],
-      "title": "Piezas Más Usadas",
-      "type": "bargauge"
-    },
-    {
-      "datasource": {
-        "datasource": "__MY_DATASOURCE__"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "continuous-YlBl"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 59
-      },
-      "id": 18,
-      "options": {
-        "displayMode": "gradient",
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": false
-        },
-        "maxVizHeight": 300,
-        "minVizHeight": 16,
-        "minVizWidth": 8,
-        "namePlacement": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
-          "fields": "",
-          "limit": 10,
-          "values": true
-        },
-        "showUnfilled": true,
-        "sizing": "auto",
-        "valueMode": "color"
-      },
-      "pluginVersion": "12.0.0",
-      "targets": [
-        {
-          "dataset": "logs",
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT usuario, COUNT(*) as value FROM logs.logs \r\nWHERE $__timeFilter(FECHA) and country in ($country) AND usuario != 'null'  AND LOWER(fabricante) = LOWER('${__user.login}')\r\nGROUP BY usuario ORDER BY COUNT(*) DESC",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        }
-      ],
-      "title": "Usuarios con más actividad",
-      "type": "bargauge"
     }
   ],
-  "preload": false,
+  "preload": true,
   "schemaVersion": 41,
   "tags": [],
   "templating": {
@@ -1200,8 +1349,8 @@
         "auto_count": 20,
         "auto_min": "1h",
         "current": {
-          "text": "1d",
-          "value": "1d"
+          "text": "7d",
+          "value": "7d"
         },
         "label": "interval",
         "name": "interval",
@@ -1212,12 +1361,12 @@
             "value": "1h"
           },
           {
-            "selected": true,
+            "selected": false,
             "text": "1d",
             "value": "1d"
           },
           {
-            "selected": false,
+            "selected": true,
             "text": "7d",
             "value": "7d"
           },
@@ -1241,5 +1390,5 @@
   "timezone": "browser",
   "title": "TFGFabricante",
   "uid": "feks11p7qf2f4b",
-  "version": 12
+  "version": 36
 }

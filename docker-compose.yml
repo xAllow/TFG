@@ -28,7 +28,12 @@ services:
       - mysql
     volumes:
       - grafana_data:/var/lib/grafana
-
+  nodeapp:
+    build: ./grafana_kiosk
+    ports:
+      - "3001:3001"
+    depends_on:
+      - grafana
 volumes:
   mysql_data:
     name: alvaroluque_mysql

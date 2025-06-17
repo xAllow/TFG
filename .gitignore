@@ -1,2 +1,5 @@
-
+logs/
+.ipynb_checkpoints
 /.quarto/
+_book
+mysql.ipynb

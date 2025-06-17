@@ -24,8 +24,6 @@ Este proyecto incluye configuraciones para procesamiento de datos, visualizació
 
  - **`Dockerfile`**: Permite construir una imagen Docker para desplegar fácilmente el servidor kiosk.
 
-### 📂 `logs/`  
-  Carpeta donde se almacenan los registros del sistema.
 
 ### 📂 `notebooks/`  
   Notebooks interactivos en formato Jupyter con análisis de datos, visualizaciones y modelos. Cada notebook representa una etapa del trabajo analítico del proyecto.
